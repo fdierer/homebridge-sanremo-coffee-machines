@@ -72,7 +72,8 @@ export class SanremoCoffeeMachines implements DynamicPlatformPlugin {
 
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
-        new SanremoCubeAccessory(this, existingAccessory, device.ip);
+        const pollingInterval = device.pollingInterval || 30;
+        new SanremoCubeAccessory(this, existingAccessory, device.ip, pollingInterval);
 
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
         // remove platform accessories when no longer present
@@ -91,7 +92,8 @@ export class SanremoCoffeeMachines implements DynamicPlatformPlugin {
 
         // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
-        new SanremoCubeAccessory(this, accessory, device.ip);
+        const pollingInterval = device.pollingInterval || 30;
+        new SanremoCubeAccessory(this, accessory, device.ip, pollingInterval);
 
         // link the accessory to your platform
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);

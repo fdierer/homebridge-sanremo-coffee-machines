@@ -1,0 +1,78 @@
+{
+  "pluginAlias": "SanremoCoffeeMachines",
+  "pluginType": "platform",
+  "singular": false,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Platform Name",
+        "type": "string",
+        "required": true,
+        "default": "SanremoCoffeeMachines"
+      },
+      "machines": {
+        "title": "Coffee Machines",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Machine Name",
+              "type": "string",
+              "required": true,
+              "default": "Sanremo Cube",
+              "description": "The name that will appear in HomeKit"
+            },
+            "type": {
+              "title": "Machine Type",
+              "type": "string",
+              "required": true,
+              "default": "Cube",
+              "enum": ["Cube"],
+              "description": "Currently only 'Cube' is supported"
+            },
+            "ip": {
+              "title": "IP Address",
+              "type": "string",
+              "required": true,
+              "format": "ipv4",
+              "placeholder": "192.168.1.100",
+              "description": "Static IP address of the coffee machine"
+            },
+            "pollingInterval": {
+              "title": "Polling Interval (seconds)",
+              "type": "integer",
+              "default": 30,
+              "minimum": 5,
+              "maximum": 300,
+              "description": "How often to check machine status (5-300 seconds). Lower values = faster updates but more network traffic."
+            }
+          }
+        }
+      }
+    }
+  },
+  "layout": [
+    {
+      "type": "flex",
+      "flex-flow": "row wrap",
+      "items": [
+        "name"
+      ]
+    },
+    {
+      "key": "machines",
+      "type": "array",
+      "orderable": false,
+      "buttonText": "Add Machine",
+      "items": [
+        "machines[].name",
+        "machines[].type",
+        "machines[].ip",
+        "machines[].pollingInterval"
+      ]
+    }
+  ]
+}
+

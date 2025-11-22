@@ -12,6 +12,8 @@ import fetch from "node-fetch";
 export class SanremoCubeAccessory {
     
     private heaterService: Service;
+    private pollingInterval: NodeJS.Timeout | null = null;
+    private readonly pollingIntervalMs: number;
     
     /** REST Commands */
     private readonly cmdGetDeviceInfo = 'key=150';
@@ -67,9 +69,11 @@ export class SanremoCubeAccessory {
     constructor(
       private readonly platform: SanremoCoffeeMachines,
       private readonly accessory: PlatformAccessory,
-      private readonly ipAddress: string,)
+      private readonly ipAddress: string,
+      pollingIntervalSeconds: number = 30)
     {
         this.postUrl = 'http://' + ipAddress + '/ajax/post';
+        this.pollingIntervalMs = pollingIntervalSeconds * 1000;
         
         // set accessory information
         this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -123,6 +127,73 @@ export class SanremoCubeAccessory {
         this.heaterService.addCharacteristic(this.platform.Characteristic.FilterChangeIndication).onGet(this.handleFilterChangeIndicationGet.bind(this));
         this.heaterService.addCharacteristic(this.platform.Characteristic.FilterLifeLevel).onGet(this.handleFilterLifeLevelGet.bind(this));
         this.heaterService.addCharacteristic(this.platform.Characteristic.ResetFilterIndication).onSet(this.ResetFilterIndicationSet.bind(this));
+        
+        // Start automatic polling for status updates
+        this.startPolling();
+    }
+    
+    /**
+     * Start automatic polling to keep HomeKit status updated
+     */
+    private startPolling() {
+        this.platform.log.info(`Starting automatic polling every ${this.pollingIntervalMs / 1000} seconds for ${this.accessory.displayName}`);
+        
+        // Initial poll
+        this.pollStatus();
+        
+        // Set up interval
+        this.pollingInterval = setInterval(() => {
+            this.pollStatus();
+        }, this.pollingIntervalMs);
+    }
+    
+    /**
+     * Poll the coffee machine and update all characteristics
+     */
+    private async pollStatus() {
+        try {
+            await this.getReadOnlyParameters();
+            await this.getReadWriteParameters();
+            
+            // Update all characteristics
+            const isActive = (this.roRegStatus & this.statusMaskStandby) == 0;
+            this.heaterService.updateCharacteristic(this.platform.Characteristic.Active, isActive);
+            
+            this.heaterService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, this.roRegTemp);
+            this.heaterService.updateCharacteristic(this.platform.Characteristic.HeatingThresholdTemperature, this.rwRegTemp);
+            
+            const readyToBrew = !((this.roRegStatus & this.statusMaskReady) == 0);
+            const heaterState = readyToBrew ? 
+                this.platform.Characteristic.CurrentHeaterCoolerState.IDLE : 
+                this.platform.Characteristic.CurrentHeaterCoolerState.HEATING;
+            this.heaterService.updateCharacteristic(this.platform.Characteristic.CurrentHeaterCoolerState, heaterState);
+            
+            const needChangeFilter = ((this.roRegAlarm & this.alarmMaskNeedChangeFilters) != 0);
+            const filterIndication = needChangeFilter ? 
+                this.platform.Characteristic.FilterChangeIndication.CHANGE_FILTER : 
+                this.platform.Characteristic.FilterChangeIndication.FILTER_OK;
+            this.heaterService.updateCharacteristic(this.platform.Characteristic.FilterChangeIndication, filterIndication);
+            
+            const filterRemainingPercent = this.roRegFilterDaysRemaining / this.roFilterChangeThresholdDays * 100;
+            this.heaterService.updateCharacteristic(
+                this.platform.Characteristic.FilterLifeLevel, 
+                isNaN(filterRemainingPercent) ? 0 : filterRemainingPercent
+            );
+            
+        } catch (error) {
+            this.platform.log.error(`Error polling ${this.accessory.displayName}:`, error);
+        }
+    }
+    
+    /**
+     * Stop polling (cleanup)
+     */
+    public stopPolling() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+            this.platform.log.info(`Stopped polling for ${this.accessory.displayName}`);
+        }
     }
     
     getReadWriteParameters() {
