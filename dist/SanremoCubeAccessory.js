@@ -96,9 +96,15 @@ class SanremoCubeAccessory {
             maxValue: 1,
             validValues: [1, 1]
         });
-        this.heaterService.addCharacteristic(this.platform.Characteristic.FilterChangeIndication).onGet(this.handleFilterChangeIndicationGet.bind(this));
-        this.heaterService.addCharacteristic(this.platform.Characteristic.FilterLifeLevel).onGet(this.handleFilterLifeLevelGet.bind(this));
-        this.heaterService.addCharacteristic(this.platform.Characteristic.ResetFilterIndication).onSet(this.ResetFilterIndicationSet.bind(this));
+        this.heaterService
+            .getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
+            .onGet(this.handleFilterChangeIndicationGet.bind(this));
+        this.heaterService
+            .getCharacteristic(this.platform.Characteristic.FilterLifeLevel)
+            .onGet(this.handleFilterLifeLevelGet.bind(this));
+        this.heaterService
+            .getCharacteristic(this.platform.Characteristic.ResetFilterIndication)
+            .onSet(this.ResetFilterIndicationSet.bind(this));
         // Start automatic polling for status updates
         this.startPolling();
     }
