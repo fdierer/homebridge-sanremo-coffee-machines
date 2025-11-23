@@ -10,8 +10,11 @@ export declare class SanremoCubeAccessory {
     private readonly accessory;
     private readonly ipAddress;
     private heaterService;
+    private powerSwitchService;
     private pollingInterval;
     private readonly pollingIntervalMs;
+    private readonly enablePowerSwitch;
+    private readonly filterLifeDays;
     /** REST Commands */
     private readonly cmdGetDeviceInfo;
     private readonly cmdGetReadOnlyParameters;
@@ -50,8 +53,10 @@ export declare class SanremoCubeAccessory {
     /** Read-write registers */
     private readonly rwRegIndexTemp;
     private rwRegTemp;
+    /** Filter Maintenance Tracking */
+    private nextFilterReplacementDate;
     private readonly postUrl;
-    constructor(platform: SanremoCoffeeMachines, accessory: PlatformAccessory, ipAddress: string, pollingIntervalSeconds?: number);
+    constructor(platform: SanremoCoffeeMachines, accessory: PlatformAccessory, ipAddress: string, pollingIntervalSeconds?: number, enablePowerSwitch?: boolean, filterLifeDays?: number);
     /**
      * Start automatic polling to keep HomeKit status updated
      */
@@ -79,5 +84,26 @@ export declare class SanremoCubeAccessory {
     handleFilterChangeIndicationGet(): Promise<0 | 1>;
     handleFilterLifeLevelGet(): Promise<number>;
     ResetFilterIndicationSet(): Promise<void>;
+    /*** Filter Reminder Logic Structure ***/
+    /**
+     * Initialize filter replacement date from accessory context or calculate new one
+     */
+    private initializeFilterReplacementDate;
+    /**
+     * Calculate and store next filter replacement date
+     */
+    private calculateNextFilterReplacementDate;
+    /**
+     * Reset filter replacement date (called when filter is replaced)
+     */
+    private resetFilterReplacementDate;
+    /**
+     * Get days until filter replacement
+     * @returns Number of days until replacement, or null if not set
+     */
+    private getDaysUntilFilterReplacement;
+    /*** Power Switch implementation ***/
+    handlePowerSwitchGet(): Promise<boolean>;
+    handlePowerSwitchSet(value: CharacteristicValue): Promise<void>;
 }
 //# sourceMappingURL=SanremoCubeAccessory.d.ts.map

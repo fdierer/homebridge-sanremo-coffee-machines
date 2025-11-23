@@ -12,8 +12,11 @@ import fetch from "node-fetch";
 export class SanremoCubeAccessory {
     
     private heaterService: Service;
+    private powerSwitchService: Service | null = null;
     private pollingInterval: NodeJS.Timeout | null = null;
     private readonly pollingIntervalMs: number;
+    private readonly enablePowerSwitch: boolean;
+    private readonly filterLifeDays: number;
     
     /** REST Commands */
     private readonly cmdGetDeviceInfo = 'key=150';
@@ -64,16 +67,28 @@ export class SanremoCubeAccessory {
     
     private rwRegTemp = this.cubeMinTempDegC;
     
+    /** Filter Maintenance Tracking */
+    private nextFilterReplacementDate: Date | null = null;
+    
     private readonly postUrl: string;
     
     constructor(
       private readonly platform: SanremoCoffeeMachines,
       private readonly accessory: PlatformAccessory,
       private readonly ipAddress: string,
-      pollingIntervalSeconds: number = 30)
+      pollingIntervalSeconds: number = 30,
+      enablePowerSwitch: boolean = false,
+      filterLifeDays: number = 180)
     {
         this.postUrl = 'http://' + ipAddress + '/ajax/post';
         this.pollingIntervalMs = pollingIntervalSeconds * 1000;
+        this.enablePowerSwitch = enablePowerSwitch;
+        this.filterLifeDays = filterLifeDays;
+        
+        // Ensure accessory name is "Sanremo Cube" by default
+        if (!this.accessory.displayName || this.accessory.displayName === 'Coffee Machine') {
+            this.accessory.displayName = 'Sanremo Cube';
+        }
         
         // set accessory information
         this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -81,8 +96,9 @@ export class SanremoCubeAccessory {
         .setCharacteristic(this.platform.Characteristic.Model, 'Cube')
         .setCharacteristic(this.platform.Characteristic.SerialNumber, ipAddress);
         
+        // Setup HeaterCooler service with name "Sanremo Cube"
         this.heaterService = this.accessory.getService(this.platform.Service.HeaterCooler) ||
-        this.accessory.addService(this.platform.Service.HeaterCooler);
+        this.accessory.addService(this.platform.Service.HeaterCooler, 'Sanremo Cube');
         
         // Setup heater service on/off
         this.heaterService.getCharacteristic(this.platform.Characteristic.Active).onGet(
@@ -136,6 +152,22 @@ export class SanremoCubeAccessory {
             .getCharacteristic(this.platform.Characteristic.ResetFilterIndication)
             .onSet(this.ResetFilterIndicationSet.bind(this));
         
+        // Optionally add Power Switch service
+        if (this.enablePowerSwitch) {
+            this.powerSwitchService = this.accessory.getService(this.platform.Service.Switch) ||
+                this.accessory.addService(this.platform.Service.Switch, 'Sanremo Cube Power');
+            
+            this.powerSwitchService
+                .getCharacteristic(this.platform.Characteristic.On)
+                .onGet(this.handlePowerSwitchGet.bind(this))
+                .onSet(this.handlePowerSwitchSet.bind(this));
+            
+            this.platform.log.info(`Power Switch service enabled for ${this.accessory.displayName}`);
+        }
+        
+        // Initialize filter replacement date from accessory context or calculate new one
+        this.initializeFilterReplacementDate();
+        
         // Start automatic polling for status updates
         this.startPolling();
     }
@@ -166,6 +198,11 @@ export class SanremoCubeAccessory {
             // Update all characteristics
             const isActive = (this.roRegStatus & this.statusMaskStandby) == 0;
             this.heaterService.updateCharacteristic(this.platform.Characteristic.Active, isActive);
+            
+            // Update power switch if enabled
+            if (this.powerSwitchService) {
+                this.powerSwitchService.updateCharacteristic(this.platform.Characteristic.On, isActive);
+            }
             
             this.heaterService.updateCharacteristic(this.platform.Characteristic.CurrentTemperature, this.roRegTemp);
             this.heaterService.updateCharacteristic(this.platform.Characteristic.HeatingThresholdTemperature, this.rwRegTemp);
@@ -205,15 +242,33 @@ export class SanremoCubeAccessory {
     }
     
     getReadWriteParameters() {
-        return fetch(this.postUrl, { method: 'POST', body: this.cmdGetReadWriteParameters })
+        return fetch(this.postUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Connection': 'close',
+            },
+            body: this.cmdGetReadWriteParameters,
+        })
         .then(r => r.json())
         .then(r => {
-            this.rwRegTemp = Number(r[this.regString][this.rwRegIndexTemp][1])/10;
+            const raw = Number(r[this.regString][this.rwRegIndexTemp][1]) / 10;
+            const clamped =
+                Math.min(this.cubeMaxTempDegC,
+                Math.max(this.cubeMinTempDegC, raw));
+            this.rwRegTemp = clamped;
         }).catch(error => console.error('Error', error))
     }
     
     getReadOnlyParameters() {
-        return fetch(this.postUrl, { method: 'POST', body: this.cmdGetReadOnlyParameters }).then((response) => {
+        return fetch(this.postUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Connection': 'close',
+            },
+            body: this.cmdGetReadOnlyParameters,
+        }).then((response) => {
           if (response.ok) {
             return response.json();
           }
@@ -240,7 +295,14 @@ export class SanremoCubeAccessory {
     
     async handleActiveSet(value: CharacteristicValue) {
         const content = value? this.cmdActive : this.cmdStandby;
-        fetch(this.postUrl, { method: 'POST', body: content });
+        fetch(this.postUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Connection': 'close',
+            },
+            body: content,
+        });
     }
     
     async handleCurrentTemperatureGet() {
@@ -249,10 +311,24 @@ export class SanremoCubeAccessory {
     }
     
     async handleTargetTemperatureSet(value: CharacteristicValue) {
-        const targetTemperature = Number(value);
+        const requested = Number(value);
+
+        const targetTemperature =
+            Math.min(this.cubeMaxTempDegC,
+            Math.max(this.cubeMinTempDegC, requested));
+
+        this.rwRegTemp = targetTemperature;
+
         const content = this.cmdSetTemperature + String(targetTemperature);
-        
-        fetch(this.postUrl, { method: 'POST', body: content });
+
+        fetch(this.postUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Connection': 'close',
+            },
+            body: content,
+        });
     }
     
     async handleTargetTemperatureGet() {
@@ -292,6 +368,95 @@ export class SanremoCubeAccessory {
     }
     
     async ResetFilterIndicationSet() {
-        fetch(this.postUrl, { method: 'POST', body: this.cmdResetFilterExpiration });
+        fetch(this.postUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Connection': 'close',
+            },
+            body: this.cmdResetFilterExpiration,
+        });
+        
+        // Reset filter replacement date when filter is replaced
+        this.resetFilterReplacementDate();
+    }
+    
+    /*** Filter Reminder Logic Structure ***/
+    
+    /**
+     * Initialize filter replacement date from accessory context or calculate new one
+     */
+    private initializeFilterReplacementDate() {
+        // Try to load from accessory context (persisted across restarts)
+        if (this.accessory.context.nextFilterReplacementDate) {
+            this.nextFilterReplacementDate = new Date(this.accessory.context.nextFilterReplacementDate);
+            this.platform.log.info(`Loaded filter replacement date: ${this.nextFilterReplacementDate.toLocaleDateString()}`);
+        } else {
+            // Calculate new replacement date based on filterLifeDays
+            this.calculateNextFilterReplacementDate();
+        }
+    }
+    
+    /**
+     * Calculate and store next filter replacement date
+     */
+    private calculateNextFilterReplacementDate() {
+        const now = new Date();
+        this.nextFilterReplacementDate = new Date(now.getTime() + (this.filterLifeDays * 24 * 60 * 60 * 1000));
+        
+        // Store in accessory context for persistence
+        this.accessory.context.nextFilterReplacementDate = this.nextFilterReplacementDate.toISOString();
+        
+        this.platform.log.info(`Filter replacement date set to: ${this.nextFilterReplacementDate.toLocaleDateString()} (${this.filterLifeDays} days from now)`);
+    }
+    
+    /**
+     * Reset filter replacement date (called when filter is replaced)
+     */
+    private resetFilterReplacementDate() {
+        this.calculateNextFilterReplacementDate();
+        this.platform.log.info(`Filter replacement date reset for ${this.accessory.displayName}`);
+        
+        // TODO: Future implementation - send HomeKit notification when replacement date is reached
+        // This structure is ready for notification implementation
+    }
+    
+    /**
+     * Get days until filter replacement
+     * @returns Number of days until replacement, or null if not set
+     */
+    private getDaysUntilFilterReplacement(): number | null {
+        if (!this.nextFilterReplacementDate) {
+            return null;
+        }
+        
+        const now = new Date();
+        const diffTime = this.nextFilterReplacementDate.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        return diffDays;
+    }
+
+    /*** Power Switch implementation ***/
+    
+    async handlePowerSwitchGet() {
+        await this.getReadOnlyParameters();
+        return (this.roRegStatus & this.statusMaskStandby) == 0;
+    }
+    
+    async handlePowerSwitchSet(value: CharacteristicValue) {
+        const isOn = value as boolean;
+        const content = isOn ? this.cmdActive : this.cmdStandby;
+        
+        this.platform.log.info(`${isOn ? 'Powering ON' : 'Powering OFF'} ${this.accessory.displayName} via Power Switch`);
+        
+        fetch(this.postUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Connection': 'close',
+            },
+            body: content,
+        });
     }
 }

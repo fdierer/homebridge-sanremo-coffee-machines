@@ -1,25 +1,38 @@
-# Sanremo Coffee Machines Homebridge Plugin
+# homebridge-sanremo-coffee-machines
 
-This plugin currently only supports the Sanremo Cube. It implements a heater widget to allow for switching the Cube into or out of standby mode, to monitor and alter the boiler temperature, and to monitor and provide indications for water filter maintenance.
+[![npm version](https://img.shields.io/npm/v/homebridge-sanremo-coffee-machines.svg)](https://www.npmjs.com/package/homebridge-sanremo-coffee-machines)
+[![npm downloads](https://img.shields.io/npm/dm/homebridge-sanremo-coffee-machines.svg)](https://www.npmjs.com/package/homebridge-sanremo-coffee-machines)
 
-## ✨ New in v1.2.0
+Homebridge plugin for Sanremo Coffee Machines. Control your Sanremo Cube coffee machine via HomeKit with real-time status updates, temperature control, power management, and filter maintenance tracking.
 
-- **🔄 Automatic Status Polling**: Real-time status updates in the Home app
-- **⚙️ Configurable Polling Interval**: Set custom update frequency (5-300 seconds)
-- **📊 Accurate Status**: No more stale "OFF" when machine is actually "ON"
-- **🌡️ Extended Temperature Range**: Supports 115-130°C boiler temperatures without warnings
-- **🔧 Better Configuration**: Platform-based architecture with config schema for Homebridge UI
-- **✅ Homebridge v2.0 Ready**: Fully compatible with Homebridge v2.0 and HAP-NodeJS v1
+## Overview
+
+This plugin provides full HomeKit integration for Sanremo Cube coffee machines, allowing you to control and monitor your machine through the Apple Home app, Siri, and HomeKit automations. The plugin communicates with your coffee machine via its built-in HTTP interface at `/ajax/post`.
+
+## Key Features
+
+- **HeaterCooler Service**: Full HomeKit integration with power, temperature, and status control
+- **Automatic Status Polling**: Real-time status updates with configurable polling interval (5-300 seconds)
+- **Optional Power Switch**: Additional HomeKit Switch service for quick power control
+- **Temperature Control**: Monitor and adjust boiler temperature (115-130°C range)
+- **Filter Maintenance**: Track filter life and get replacement reminders
+- **HomeKit Native**: Works seamlessly with Apple Home app, Siri, and HomeKit automations
+- **Homebridge v2.0 Ready**: Fully compatible with Homebridge v2.0 and HAP-NodeJS v1
 
 ## Prerequisites
 
-1. The machine should be left switched on (hard rocker switch in the on position) to facilitate communication between the internal WiFi module and homebridge.
-2. The machine should be connected to the same network as Homebridge (consult the machine manual on how to connect the machine to a wireless network)
-3. A known static IP address should be assigned (consult the machine manual)
+1. **Coffee Machine Setup**:
+   - Machine must be powered on (hard rocker switch in the on position)
+   - Machine must be connected to the same network as Homebridge
+   - A static IP address must be assigned to the machine
+
+2. **Homebridge Requirements**:
+   - Homebridge v1.6.0 or later (v2.0 compatible ✅)
+   - Node.js v18.20.4, v20.15.1, or v22.0.0+
 
 ## Installation
 
-### From npm (Coming Soon)
+### From npm
 
 ```bash
 npm install -g homebridge-sanremo-coffee-machines
@@ -28,100 +41,115 @@ npm install -g homebridge-sanremo-coffee-machines
 ### From GitHub
 
 ```bash
-npm install -g https://github.com/YOUR_USERNAME/homebridge-sanremo-coffee-machines.git
+npm install -g https://github.com/fdierer/homebridge-sanremo-coffee-machines.git
 ```
 
-## Plugin Configuration
+After installation, restart Homebridge and add the platform to your `config.json`.
+
+## Configuration
 
 ### Basic Configuration
 
 ```json
-"platforms": [
+{
+  "platforms": [
     {
-        "name": "Config",
-        "port": 8581,
-        "platform": "config"
-    },
-    {
-        "platform": "SanremoCoffeeMachines",
-        "name": "SanremoCoffeeMachines",
-        "machines": [
-            {
-                "name": "Coffee Machine",
-                "type": "Cube",
-                "ip": "192.168.1.100"
-            }
-        ]
-    }
-]
-```
-
-### Recommended Configuration (with Polling)
-
-```json
-"platforms": [
-    {
-        "platform": "SanremoCoffeeMachines",
-        "name": "SanremoCoffeeMachines",
-        "machines": [
-            {
-                "name": "Coffee Machine",
-                "type": "Cube",
-                "ip": "192.168.1.100",
-                "pollingInterval": 5
-            }
-        ]
-    }
-]
-```
-
-### Configuration with Child Bridge
-
-```json
-"platforms": [
-    {
-        "platform": "SanremoCoffeeMachines",
-        "name": "SanremoCoffeeMachines",
-        "machines": [
-            {
-                "name": "Coffee Machine",
-                "type": "Cube",
-                "ip": "192.168.1.100",
-                "pollingInterval": 5
-            }
-        ],
-        "_bridge": {
-            "username": "0E:CC:88:96:48:DF",
-            "port": 42846,
-            "name": "Sanremo Bridge"
+      "platform": "SanremoCoffeeMachines",
+      "name": "SanremoCoffeeMachines",
+      "machines": [
+        {
+          "name": "Sanremo Cube",
+          "type": "Cube",
+          "ip": "192.168.1.100"
         }
+      ]
     }
-]
+  ]
+}
+```
+
+### Recommended Configuration (with All Features)
+
+```json
+{
+  "platforms": [
+    {
+      "platform": "SanremoCoffeeMachines",
+      "name": "SanremoCoffeeMachines",
+      "machines": [
+        {
+          "name": "Sanremo Cube",
+          "type": "Cube",
+          "ip": "192.168.1.100",
+          "pollingInterval": 5,
+          "enablePowerSwitch": true,
+          "filterLifeDays": 180
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Configuration with Child Bridge (Recommended)
+
+Using a child bridge isolates the plugin and improves stability:
+
+```json
+{
+  "platforms": [
+    {
+      "platform": "SanremoCoffeeMachines",
+      "name": "SanremoCoffeeMachines",
+      "machines": [
+        {
+          "name": "Sanremo Cube",
+          "type": "Cube",
+          "ip": "192.168.1.100",
+          "pollingInterval": 5,
+          "enablePowerSwitch": true,
+          "filterLifeDays": 180
+        }
+      ],
+      "_bridge": {
+        "username": "0E:CC:88:96:48:DF",
+        "port": 42846,
+        "name": "Sanremo Bridge"
+      }
+    }
+  ]
+}
 ```
 
 ### Multiple Machines
 
+You can configure multiple coffee machines:
+
 ```json
-"platforms": [
+{
+  "platforms": [
     {
-        "platform": "SanremoCoffeeMachines",
-        "name": "SanremoCoffeeMachines",
-        "machines": [
-            {
-                "name": "Kitchen Coffee Machine",
-                "type": "Cube",
-                "ip": "192.168.1.100",
-                "pollingInterval": 5
-            },
-            {
-                "name": "Office Coffee Machine",
-                "type": "Cube",
-                "ip": "192.168.1.101",
-                "pollingInterval": 10
-            }
-        ]
+      "platform": "SanremoCoffeeMachines",
+      "name": "SanremoCoffeeMachines",
+      "machines": [
+        {
+          "name": "Kitchen Coffee Machine",
+          "type": "Cube",
+          "ip": "192.168.1.100",
+          "pollingInterval": 5,
+          "enablePowerSwitch": true
+        },
+        {
+          "name": "Office Coffee Machine",
+          "type": "Cube",
+          "ip": "192.168.1.101",
+          "pollingInterval": 10,
+          "enablePowerSwitch": false
+        }
+      ]
     }
-]
+  ]
+}
 ```
 
 ## Configuration Options
@@ -129,95 +157,131 @@ npm install -g https://github.com/YOUR_USERNAME/homebridge-sanremo-coffee-machin
 | Option | Type | Required | Default | Description |
 |--------|------|----------|---------|-------------|
 | `platform` | string | Yes | - | Must be `"SanremoCoffeeMachines"` |
-| `name` | string | Yes | - | Platform name |
+| `name` | string | Yes | "SanremoCoffeeMachines" | Platform name (can be any name) |
 | `machines` | array | Yes | - | Array of coffee machines |
-| `machines[].name` | string | Yes | - | Machine name in HomeKit |
+| `machines[].name` | string | Yes | "Sanremo Cube" | Machine name in HomeKit |
 | `machines[].type` | string | Yes | - | Machine type (currently only `"Cube"`) |
 | `machines[].ip` | string | Yes | - | Static IP address of machine |
 | `machines[].pollingInterval` | number | No | 30 | Status polling interval in seconds (5-300) |
+| `machines[].enablePowerSwitch` | boolean | No | false | Enable optional HomeKit Switch service |
+| `machines[].filterLifeDays` | number | No | 180 | Expected filter life in days (1-365) |
 
-## Polling Interval Guide
+## Feature Details
+
+### HeaterCooler Service
+
+The primary service exposed to HomeKit:
+
+- **Power Control**: Turn machine on/off (standby mode)
+- **Temperature Monitoring**: Real-time boiler temperature (115-130°C)
+- **Temperature Control**: Adjust target brewing temperature (115-130°C range)
+- **Status Indicators**: Ready to brew, heating, idle states
+- **Service Name**: Same as machine name (default: "Sanremo Cube")
+
+### Power Switch Service (Optional)
+
+When `enablePowerSwitch: true` is set:
+
+- **Quick Power Control**: Simple on/off switch for power management
+- **Independent Operation**: Works separately from HeaterCooler service
+- **Service Name**: `<Machine Name> Power` (e.g., "Sanremo Cube Power")
+- **Use Case**: Useful for Siri shortcuts, automations, or quick power toggles
+
+### Filter Maintenance
+
+Built-in filter tracking:
+
+- **Filter Life Tracking**: Monitor filter remaining days from machine
+- **Change Indicator**: Alert when filter needs replacement (based on machine alarm status)
+- **Life Percentage**: Visual filter life level in HomeKit
+- **Reset Function**: Reset filter timer after replacement
+- **Configurable Life**: Set expected filter life with `filterLifeDays` (default: 180 days)
+- **Note**: Filter replacement date tracking structure is implemented, but HomeKit notifications are not yet implemented
+
+### Automatic Status Updates
+
+- **Background Polling**: Automatic status checks at configured interval
+- **Push Updates**: All characteristics update automatically in HomeKit
+- **Real-time Accuracy**: HomeKit always shows current machine state
+- **Configurable Frequency**: Set polling interval from 5-300 seconds
+
+### Polling Interval Guide
 
 | Interval | Update Speed | Network Load | Use Case |
 |----------|--------------|--------------|----------|
-| 5 seconds | ⚡ Very Fast | 🔴 High | Best accuracy, recommended |
-| 10 seconds | ⚡ Fast | 🟡 Medium | Good balance |
-| 30 seconds | 🐢 Moderate | 🟢 Low | Default, acceptable |
-| 60+ seconds | 🐢 Slow | 🟢 Very Low | Minimal updates |
-
-## Features
-
-### Heater/Cooler Service
-- **Power Control**: Turn machine on/off (standby mode)
-- **Temperature Monitoring**: Real-time boiler temperature (115-130°C)
-- **Temperature Control**: Adjust target brewing temperature
-- **Status Indicators**: Ready to brew, heating, idle states
-
-### Filter Maintenance
-- **Filter Life Tracking**: Monitor filter remaining days
-- **Change Indicator**: Alert when filter needs replacement
-- **Reset Function**: Reset filter timer after replacement
-
-### Automatic Status Updates (v1.2.0+)
-- **Background Polling**: Automatic status checks at configured interval
-- **Push Updates**: All characteristics update automatically
-- **Real-time Accuracy**: HomeKit always shows current machine state
+| 5 seconds | ⚡ Very Fast | 🔴 High | Best accuracy, recommended for active use |
+| 10 seconds | ⚡ Fast | 🟡 Medium | Good balance between accuracy and network usage |
+| 30 seconds | 🐢 Moderate | 🟢 Low | Default, acceptable for most users |
+| 60+ seconds | 🐢 Slow | 🟢 Very Low | Minimal updates, reduce network traffic |
 
 ## Troubleshooting
 
 ### Machine Not Responding
 
-1. Verify machine is powered on (hard switch)
-2. Check WiFi connection on machine
+1. Verify machine is powered on (hard rocker switch)
+2. Check machine is connected to WiFi
 3. Verify IP address is correct and static
-4. Test connectivity: `ping [machine-ip]`
+4. Test connectivity: `ping [machine-ip]` from Homebridge host
+5. Check firewall isn't blocking HTTP traffic
 
 ### Status Not Updating
 
 1. Check `pollingInterval` is set in config
 2. Verify logs show: `Starting automatic polling every X seconds`
 3. Check for network errors in logs
-4. Ensure machine is reachable from Homebridge
+4. Ensure machine is reachable from Homebridge host
 
-### Temperature Warnings
+### HomeKit Not Showing Accessory
 
-If you see temperature warnings, you may be using the old `homebridge-sanremo-cube` plugin. This plugin (`homebridge-sanremo-coffee-machines`) supports temperatures up to 150°C.
+1. Restart Homebridge after configuration changes
+2. Check config JSON syntax is correct
+3. Check logs for plugin initialization errors
+4. Remove and re-add accessory in Home app
 
-## Changelog
+## Known Limitations
 
-See [CHANGELOG_v1.2.0.md](CHANGELOG_v1.2.0.md) for detailed changes.
+- **Single Model Support**: Currently only supports Sanremo Cube (other models may be added in future)
+- **Network Dependency**: Requires machine to be on the same network as Homebridge
+- **Static IP Required**: Machine must have a static IP address
+- **HTTP Only**: Communication is via HTTP (not HTTPS)
+- **Filter Notifications**: Filter replacement date tracking is implemented, but HomeKit notifications are not yet implemented (structure is ready for future implementation)
 
-## Installation Guide
+## Attribution
 
-See [INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md) for detailed installation instructions.
+This plugin is an enhanced fork of the original [`homebridge-sanremo-cube`](https://github.com/nsinenian/homebridge-sanremo-cube) plugin by [Nareg Sinenian](https://github.com/nsinenian).
+
+**Fork Maintainer**: Franc Dierer
+
+**Enhancements in this fork**:
+- Automatic status polling system with configurable interval
+- Temperature clamping to prevent HomeKit warnings
+- Optional Power Switch service
+- Enhanced filter maintenance tracking structure
+- Homebridge v2.0 compatibility improvements
+- Comprehensive documentation
+
+We are grateful to the original author for the foundation of this plugin.
 
 ## Contributing
 
 Contributions are welcome! Please:
+
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## Support
 
-- **Issues**: https://github.com/nsinenian/homebridge-sanremo-coffee-machines/issues
-- **Homebridge**: https://homebridge.io
-- **Sanremo**: https://www.sanremomachines.com
+- **GitHub Issues**: [Report an issue](https://github.com/fdierer/homebridge-sanremo-coffee-machines/issues)
+- **Homebridge Discord**: Join the Homebridge community
+- **Homebridge Reddit**: r/homebridge
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License - see [LICENSE](LICENSE) file for details
 
-## Credits
+---
 
-- Original plugin by Nareg Sinenian
-- v1.2.0 automatic polling enhancements by Francis Dierer
-
-## Notes
-
-- Only the Sanremo Cube is currently supported
-- Other Sanremo models may be supported in future versions
-- **Requires Homebridge v1.6 or later** (v2.0 compatible ✅)
-- **Requires Node.js v18.20.4, v20.15.1, or v22+**
-- See [HOMEBRIDGE_V2_COMPLIANCE.md](HOMEBRIDGE_V2_COMPLIANCE.md) for v2.0 compatibility details
+**Made with ☕ for coffee lovers**

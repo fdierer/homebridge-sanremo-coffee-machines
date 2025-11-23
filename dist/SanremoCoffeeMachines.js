@@ -61,7 +61,9 @@ class SanremoCoffeeMachines {
                 // create the accessory handler for the restored accessory
                 // this is imported from `platformAccessory.ts`
                 const pollingInterval = device.pollingInterval || 30;
-                new SanremoCubeAccessory_1.SanremoCubeAccessory(this, existingAccessory, device.ip, pollingInterval);
+                const enablePowerSwitch = device.enablePowerSwitch || false;
+                const filterLifeDays = device.filterLifeDays || 180;
+                new SanremoCubeAccessory_1.SanremoCubeAccessory(this, existingAccessory, device.ip, pollingInterval, enablePowerSwitch, filterLifeDays);
                 // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
                 // remove platform accessories when no longer present
                 // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
@@ -78,7 +80,9 @@ class SanremoCoffeeMachines {
                 // create the accessory handler for the newly create accessory
                 // this is imported from `platformAccessory.ts`
                 const pollingInterval = device.pollingInterval || 30;
-                new SanremoCubeAccessory_1.SanremoCubeAccessory(this, accessory, device.ip, pollingInterval);
+                const enablePowerSwitch = device.enablePowerSwitch || false;
+                const filterLifeDays = device.filterLifeDays || 180;
+                new SanremoCubeAccessory_1.SanremoCubeAccessory(this, accessory, device.ip, pollingInterval, enablePowerSwitch, filterLifeDays);
                 // link the accessory to your platform
                 this.api.registerPlatformAccessories(settings_1.PLUGIN_NAME, settings_1.PLATFORM_NAME, [accessory]);
             }
