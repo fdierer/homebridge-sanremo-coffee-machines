@@ -15,6 +15,7 @@ export declare class SanremoCubeAccessory {
     private readonly pollingIntervalMs;
     private readonly enablePowerSwitch;
     private readonly filterLifeDays;
+    private readonly debugLogging;
     /** REST Commands */
     private readonly cmdGetDeviceInfo;
     private readonly cmdGetReadOnlyParameters;
@@ -55,8 +56,10 @@ export declare class SanremoCubeAccessory {
     private rwRegTemp;
     /** Filter Maintenance Tracking */
     private nextFilterReplacementDate;
+    private hasInitialPollCompleted;
+    private lastPollTimestamp;
     private readonly postUrl;
-    constructor(platform: SanremoCoffeeMachines, accessory: PlatformAccessory, ipAddress: string, pollingIntervalSeconds?: number, enablePowerSwitch?: boolean, filterLifeDays?: number);
+    constructor(platform: SanremoCoffeeMachines, accessory: PlatformAccessory, ipAddress: string, pollingIntervalSeconds?: number, enablePowerSwitch?: boolean, filterLifeDays?: number, debugLogging?: boolean);
     /**
      * Start automatic polling to keep HomeKit status updated
      */
@@ -77,7 +80,7 @@ export declare class SanremoCubeAccessory {
     handleCurrentTemperatureGet(): Promise<number>;
     handleTargetTemperatureSet(value: CharacteristicValue): Promise<void>;
     handleTargetTemperatureGet(): Promise<number>;
-    handleCurrentHeaterStateGet(): Promise<1 | 2>;
+    handleCurrentHeaterStateGet(): Promise<0 | 1 | 2>;
     handleTargetHeaterStateSet(): Promise<void>;
     handleTargetHeaterStateGet(): number;
     /*** Filter maintenance implementation ***/
@@ -105,5 +108,6 @@ export declare class SanremoCubeAccessory {
     /*** Power Switch implementation ***/
     handlePowerSwitchGet(): Promise<boolean>;
     handlePowerSwitchSet(value: CharacteristicValue): Promise<void>;
+    private debugLog;
 }
 //# sourceMappingURL=SanremoCubeAccessory.d.ts.map

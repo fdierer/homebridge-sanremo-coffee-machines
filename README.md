@@ -1,13 +1,15 @@
-# homebridge-sanremo-coffee-machines
+# homebridge-sanremo-cube-coffeemachine
 
-[![npm version](https://img.shields.io/npm/v/homebridge-sanremo-coffee-machines.svg)](https://www.npmjs.com/package/homebridge-sanremo-coffee-machines)
-[![npm downloads](https://img.shields.io/npm/dm/homebridge-sanremo-coffee-machines.svg)](https://www.npmjs.com/package/homebridge-sanremo-coffee-machines)
+[![npm version](https://img.shields.io/npm/v/homebridge-sanremo-cube-coffeemachine.svg)](https://www.npmjs.com/package/homebridge-sanremo-cube-coffeemachine)
+[![npm downloads](https://img.shields.io/npm/dm/homebridge-sanremo-cube-coffeemachine.svg)](https://www.npmjs.com/package/homebridge-sanremo-cube-coffeemachine)
 
 Homebridge plugin for Sanremo Coffee Machines. Control your Sanremo Cube coffee machine via HomeKit with real-time status updates, temperature control, power management, and filter maintenance tracking.
 
 ## Overview
 
 This plugin provides full HomeKit integration for Sanremo Cube coffee machines, allowing you to control and monitor your machine through the Apple Home app, Siri, and HomeKit automations. The plugin communicates with your coffee machine via its built-in HTTP interface at `/ajax/post`.
+
+> **Note**: This project is an enhanced and actively maintained fork of the original `homebridge-sanremo-cube` plugin by [Nareg Sinenian](https://github.com/nsinenian). All original credit belongs to the upstream author. This fork adds new features, documentation, and Homebridge v2 compatibility.
 
 ## Key Features
 
@@ -28,14 +30,14 @@ This plugin provides full HomeKit integration for Sanremo Cube coffee machines, 
 
 2. **Homebridge Requirements**:
    - Homebridge v1.6.0 or later (v2.0 compatible ✅)
-   - Node.js v18.20.4, v20.15.1, or v22.0.0+
+   - Node.js v18.20.4 or newer (supported up to, but not including, v25)
 
 ## Installation
 
 ### From npm
 
 ```bash
-npm install -g homebridge-sanremo-coffee-machines
+npm install -g homebridge-sanremo-cube-coffeemachine
 ```
 
 ### From GitHub
@@ -45,6 +47,41 @@ npm install -g https://github.com/fdierer/homebridge-sanremo-coffee-machines.git
 ```
 
 After installation, restart Homebridge and add the platform to your `config.json`.
+
+## Installation & Setup
+
+1. **Install** the plugin using npm or GitHub.
+2. **Restart Homebridge** so the platform is detected.
+3. **Add configuration** (see below) and restart again.
+
+### Example Configuration
+
+```json
+{
+  "platforms": [
+    {
+      "platform": "SanremoCoffeeMachines",
+      "name": "SanremoCoffeeMachines",
+      "debugLogging": false,
+      "machines": [
+        {
+          "name": "Sanremo Cube",
+          "type": "Cube",
+          "ip": "192.168.1.100",
+          "pollingInterval": 5,
+          "enablePowerSwitch": true,
+          "filterLifeDays": 180
+        }
+      ],
+      "_bridge": {
+        "username": "0E:CC:88:96:48:DF",
+        "port": 42846,
+        "name": "Sanremo Bridge"
+      }
+    }
+  ]
+}
+```
 
 ## Configuration
 
@@ -158,6 +195,7 @@ You can configure multiple coffee machines:
 |--------|------|----------|---------|-------------|
 | `platform` | string | Yes | - | Must be `"SanremoCoffeeMachines"` |
 | `name` | string | Yes | "SanremoCoffeeMachines" | Platform name (can be any name) |
+| `debugLogging` | boolean | No | false | Emit verbose debug messages to the Homebridge log |
 | `machines` | array | Yes | - | Array of coffee machines |
 | `machines[].name` | string | Yes | "Sanremo Cube" | Machine name in HomeKit |
 | `machines[].type` | string | Yes | - | Machine type (currently only `"Cube"`) |
@@ -230,6 +268,16 @@ Built-in filter tracking:
 2. Verify logs show: `Starting automatic polling every X seconds`
 3. Check for network errors in logs
 4. Ensure machine is reachable from Homebridge host
+
+### Debug Logging
+
+- Set `"debugLogging": true` temporarily to print every HTTP request, poll cycle, and command to the Homebridge logs. This is extremely helpful when investigating slow responses or dropped packets.
+- Remember to set it back to `false` to avoid noisy logs once issues are resolved.
+
+### Child Bridge Setup
+
+- Use the `_bridge` block shown in the example configuration to place this platform inside its own child bridge.
+- Benefits: isolates crashes, keeps the main Homebridge instance responsive, and makes it easy to restart just the Sanremo devices.
 
 ### HomeKit Not Showing Accessory
 

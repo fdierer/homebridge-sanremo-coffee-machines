@@ -1,4 +1,5 @@
-import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
+import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, Service, Characteristic } from 'homebridge';
+import { SanremoPlatformConfig } from './settings';
 /**
  * HomebridgePlatform
  * This class is the main constructor for your plugin, this is where you should
@@ -6,12 +7,14 @@ import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, 
  */
 export declare class SanremoCoffeeMachines implements DynamicPlatformPlugin {
     readonly log: Logger;
-    readonly config: PlatformConfig;
+    readonly config: SanremoPlatformConfig;
     readonly api: API;
     readonly Service: typeof Service;
     readonly Characteristic: typeof Characteristic;
     readonly accessories: PlatformAccessory[];
-    constructor(log: Logger, config: PlatformConfig, api: API);
+    private readonly debugLogging;
+    private debugLog;
+    constructor(log: Logger, config: SanremoPlatformConfig, api: API);
     /**
      * This function is invoked when homebridge restores cached accessories from disk at startup.
      * It should be used to setup event handlers for characteristics and update respective values.

@@ -17,6 +17,7 @@ export class SanremoCubeAccessory {
     private readonly pollingIntervalMs: number;
     private readonly enablePowerSwitch: boolean;
     private readonly filterLifeDays: number;
+    private readonly debugLogging: boolean;
     
     /** REST Commands */
     private readonly cmdGetDeviceInfo = 'key=150';
@@ -69,6 +70,8 @@ export class SanremoCubeAccessory {
     
     /** Filter Maintenance Tracking */
     private nextFilterReplacementDate: Date | null = null;
+    private hasInitialPollCompleted = false;
+    private lastPollTimestamp: number | null = null;
     
     private readonly postUrl: string;
     
@@ -78,12 +81,14 @@ export class SanremoCubeAccessory {
       private readonly ipAddress: string,
       pollingIntervalSeconds: number = 30,
       enablePowerSwitch: boolean = false,
-      filterLifeDays: number = 180)
+      filterLifeDays: number = 180,
+      debugLogging: boolean = false)
     {
         this.postUrl = 'http://' + ipAddress + '/ajax/post';
         this.pollingIntervalMs = pollingIntervalSeconds * 1000;
         this.enablePowerSwitch = enablePowerSwitch;
         this.filterLifeDays = filterLifeDays;
+        this.debugLogging = debugLogging;
         
         // Ensure accessory name is "Sanremo Cube" by default
         if (!this.accessory.displayName || this.accessory.displayName === 'Coffee Machine') {
@@ -131,7 +136,7 @@ export class SanremoCubeAccessory {
         });
         
         const targetHeaterState = this.heaterService.getCharacteristic(this.platform.Characteristic.TargetHeaterCoolerState);
-        targetHeaterState.onSet(this.handleTargetHeaterStateSet.bind(this));// this.handleTarget//hap.Characteristic.CurrentHeaterCoolerState.IDLE);
+        targetHeaterState.onSet(this.handleTargetHeaterStateSet.bind(this));
         targetHeaterState.onGet(this.handleTargetHeaterStateGet.bind(this));
         targetHeaterState.setProps({
           // validValues: [hap.Characteristic.TargetHeaterCoolerState.HEAT,hap.Characteristic.TargetHeaterCoolerState.COOL],
@@ -139,6 +144,13 @@ export class SanremoCubeAccessory {
           maxValue: 1,
           validValues: [1, 1]
         });
+        targetHeaterState.updateValue(this.platform.Characteristic.TargetHeaterCoolerState.HEAT);
+
+        const defaultThreshold = Math.min(Math.max(120, this.cubeMinTempDegC), this.cubeMaxTempDegC);
+        this.rwRegTemp = defaultThreshold;
+        this.heaterService.updateCharacteristic(
+          this.platform.Characteristic.HeatingThresholdTemperature,
+          defaultThreshold);
         
         this.heaterService
             .getCharacteristic(this.platform.Characteristic.FilterChangeIndication)
@@ -177,6 +189,7 @@ export class SanremoCubeAccessory {
      */
     private startPolling() {
         this.platform.log.info(`Starting automatic polling every ${this.pollingIntervalMs / 1000} seconds for ${this.accessory.displayName}`);
+        this.debugLog(`Debug logging active for ${this.accessory.displayName}`);
         
         // Initial poll
         this.pollStatus();
@@ -192,6 +205,7 @@ export class SanremoCubeAccessory {
      */
     private async pollStatus() {
         try {
+            this.debugLog('Beginning poll cycle');
             await this.getReadOnlyParameters();
             await this.getReadWriteParameters();
             
@@ -224,8 +238,14 @@ export class SanremoCubeAccessory {
                 this.platform.Characteristic.FilterLifeLevel, 
                 isNaN(filterRemainingPercent) ? 0 : filterRemainingPercent
             );
-            
+            this.debugLog(`Poll successful: Active=${isActive}, Temp=${this.roRegTemp}, Target=${this.rwRegTemp}`);
+            if (!this.hasInitialPollCompleted) {
+                this.debugLog('Initial poll completed');
+            }
+            this.hasInitialPollCompleted = true;
+            this.lastPollTimestamp = Date.now();
         } catch (error) {
+            this.debugLog(`Poll failed: ${error}`);
             this.platform.log.error(`Error polling ${this.accessory.displayName}:`, error);
         }
     }
@@ -242,6 +262,7 @@ export class SanremoCubeAccessory {
     }
     
     getReadWriteParameters() {
+        this.debugLog('Sending getReadWriteParameters request');
         return fetch(this.postUrl, {
             method: 'POST',
             headers: {
@@ -257,10 +278,12 @@ export class SanremoCubeAccessory {
                 Math.min(this.cubeMaxTempDegC,
                 Math.max(this.cubeMinTempDegC, raw));
             this.rwRegTemp = clamped;
+            this.debugLog(`Received read/write parameters: target temp=${this.rwRegTemp}`);
         }).catch(error => console.error('Error', error))
     }
     
     getReadOnlyParameters() {
+        this.debugLog('Sending getReadOnlyParameters request');
         return fetch(this.postUrl, {
             method: 'POST',
             headers: {
@@ -280,6 +303,7 @@ export class SanremoCubeAccessory {
             this.roRegTemp = Number(responseJson[this.regString][this.roRegIndexTemp][1]);
             this.roRegFilterDaysRemaining = Number(responseJson[this.regString][this.roRegIndexFilterDaysRemaining][1]);
             this.roFilterChangeThresholdDays = Number(responseJson['ThesholdWarningChangeFilter']);
+            this.debugLog(`Received read-only parameters: status=${this.roRegStatus}, alarm=${this.roRegAlarm}, temp=${this.roRegTemp}`);
         })
         .catch((error) => {
             console.log(error)
@@ -289,12 +313,15 @@ export class SanremoCubeAccessory {
     
     /*** Heater-cooler implementation ***/
     async handleActiveGet() {
-        await this.getReadOnlyParameters();
+        if (!this.hasInitialPollCompleted) {
+            return false;
+        }
         return ( (this.roRegStatus & this.statusMaskStandby) == 0 );
     }
     
     async handleActiveSet(value: CharacteristicValue) {
         const content = value? this.cmdActive : this.cmdStandby;
+        this.debugLog(`Sending power ${value ? 'ON' : 'STANDBY'} command`);
         fetch(this.postUrl, {
             method: 'POST',
             headers: {
@@ -306,7 +333,9 @@ export class SanremoCubeAccessory {
     }
     
     async handleCurrentTemperatureGet() {
-        await this.getReadOnlyParameters();
+        if (!this.hasInitialPollCompleted || isNaN(this.roRegTemp)) {
+            return 0;
+        }
         return this.roRegTemp as number;
     }
     
@@ -318,6 +347,7 @@ export class SanremoCubeAccessory {
             Math.max(this.cubeMinTempDegC, requested));
 
         this.rwRegTemp = targetTemperature;
+        this.debugLog(`Sending target temperature ${targetTemperature}°C`);
 
         const content = this.cmdSetTemperature + String(targetTemperature);
 
@@ -332,12 +362,16 @@ export class SanremoCubeAccessory {
     }
     
     async handleTargetTemperatureGet() {
-      await this.getReadWriteParameters();
+      if (!this.hasInitialPollCompleted || isNaN(this.rwRegTemp)) {
+        return this.cubeMinTempDegC;
+      }
       return this.rwRegTemp;
     }
     
     async handleCurrentHeaterStateGet() {
-      await this.getReadOnlyParameters();
+      if (!this.hasInitialPollCompleted) {
+        return this.platform.Characteristic.CurrentHeaterCoolerState.INACTIVE;
+      }
         
       const readyToBrew = !( (this.roRegStatus & this.statusMaskReady) == 0);
       return readyToBrew ? this.platform.Characteristic.CurrentHeaterCoolerState.IDLE : this.platform.Characteristic.CurrentHeaterCoolerState.HEATING;
@@ -355,19 +389,24 @@ export class SanremoCubeAccessory {
     /*** Filter maintenance implementation ***/
     
     async handleFilterChangeIndicationGet() {
-        await this.getReadOnlyParameters();
+        if (!this.hasInitialPollCompleted) {
+            return this.platform.Characteristic.FilterChangeIndication.FILTER_OK;
+        }
         const needChangeFilter = ( (this.roRegAlarm & this.alarmMaskNeedChangeFilters) != 0);
         
         return needChangeFilter ? this.platform.Characteristic.FilterChangeIndication.CHANGE_FILTER : this.platform.Characteristic.FilterChangeIndication.FILTER_OK;
     }
     
     async handleFilterLifeLevelGet() {
-        await this.getReadOnlyParameters();
+        if (!this.hasInitialPollCompleted) {
+            return 0;
+        }
         const filterRemainingPercent = this.roRegFilterDaysRemaining / this.roFilterChangeThresholdDays * 100;
         return isNaN(filterRemainingPercent) ? 0 : filterRemainingPercent;
     }
     
     async ResetFilterIndicationSet() {
+        this.debugLog('Sending reset filter indication command');
         fetch(this.postUrl, {
             method: 'POST',
             headers: {
@@ -440,7 +479,9 @@ export class SanremoCubeAccessory {
     /*** Power Switch implementation ***/
     
     async handlePowerSwitchGet() {
-        await this.getReadOnlyParameters();
+        if (!this.hasInitialPollCompleted) {
+            return false;
+        }
         return (this.roRegStatus & this.statusMaskStandby) == 0;
     }
     
@@ -449,6 +490,7 @@ export class SanremoCubeAccessory {
         const content = isOn ? this.cmdActive : this.cmdStandby;
         
         this.platform.log.info(`${isOn ? 'Powering ON' : 'Powering OFF'} ${this.accessory.displayName} via Power Switch`);
+        this.debugLog(`Power switch set to ${isOn ? 'ON' : 'OFF'}`);
         
         fetch(this.postUrl, {
             method: 'POST',
@@ -458,5 +500,11 @@ export class SanremoCubeAccessory {
             },
             body: content,
         });
+    }
+
+    private debugLog(message: string) {
+        if (this.debugLogging) {
+            this.platform.log.debug(`[${this.accessory.displayName}] ${message}`);
+        }
     }
 }

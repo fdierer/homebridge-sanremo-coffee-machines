@@ -11,6 +11,12 @@
         "required": true,
         "default": "SanremoCoffeeMachines"
       },
+      "debugLogging": {
+        "title": "Enable Debug Logging",
+        "type": "boolean",
+        "default": false,
+        "description": "When enabled, additional diagnostic messages are written to the Homebridge logs to help troubleshoot connectivity issues."
+      },
       "machines": {
         "title": "Coffee Machines",
         "type": "array",
@@ -72,7 +78,8 @@
       "type": "flex",
       "flex-flow": "row wrap",
       "items": [
-        "name"
+        "name",
+        "debugLogging"
       ]
     },
     {

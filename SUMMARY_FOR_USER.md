@@ -3,9 +3,9 @@
 ## ✅ What We Accomplished
 
 ### 1. **Found the Correct Plugin**
-- Located: `homebridge-sanremo-coffee-machines` by Nareg Sinenian
+- Located: `homebridge-sanremo-cube-coffeemachine` (npm package name) by Nareg Sinenian
 - GitHub: https://github.com/nsinenian/homebridge-sanremo-coffee-machines
-- This is a **different plugin** than `homebridge-sanremo-cube` you were using
+- This is a **different plugin** than `homebridge-sanremo-cube-coffeemachine` you were using
 
 ### 2. **Cloned and Analyzed Source Code**
 - Cloned to: `/Users/francisdierer/Dev Environment/homebridge-sanremo-coffee-machines`
@@ -112,7 +112,7 @@ ssh franc@192.168.68.101
 sudo docker exec -it homebridge bash
 
 # Remove old plugin
-npm uninstall homebridge-sanremo-cube
+npm uninstall homebridge-sanremo-cube-coffeemachine
 
 # Install from your fork
 npm install https://github.com/YOUR_USERNAME/homebridge-sanremo-coffee-machines.git#feature/automatic-polling
@@ -129,18 +129,18 @@ sudo docker restart homebridge
 # On your Mac
 cd "/Users/francisdierer/Dev Environment/homebridge-sanremo-coffee-machines"
 npm pack
-# Creates: homebridge-sanremo-coffee-machines-1.2.0.tgz
+# Creates: homebridge-sanremo-cube-coffeemachine-1.2.0.tgz
 
 # Copy to NAS (enable SSH temporarily)
-scp homebridge-sanremo-coffee-machines-1.2.0.tgz franc@192.168.68.101:/volume1/docker/homebridge/
+scp homebridge-sanremo-cube-coffeemachine-1.2.0.tgz franc@192.168.68.101:/volume1/docker/homebridge/
 
 # Install on NAS
 ssh franc@192.168.68.101
-sudo docker cp /volume1/docker/homebridge/homebridge-sanremo-coffee-machines-1.2.0.tgz homebridge:/homebridge/
+sudo docker cp /volume1/docker/homebridge/homebridge-sanremo-cube-coffeemachine-1.2.0.tgz homebridge:/homebridge/
 sudo docker exec -it homebridge bash
 cd /homebridge
-npm uninstall homebridge-sanremo-cube
-npm install ./homebridge-sanremo-coffee-machines-1.2.0.tgz
+npm uninstall homebridge-sanremo-cube-coffeemachine
+npm install ./homebridge-sanremo-cube-coffeemachine-1.2.0.tgz
 exit
 sudo docker restart homebridge
 ```
@@ -247,7 +247,7 @@ The `config.schema.json` provides a UI in Homebridge Config UI-X:
 
 ## 🎯 Benefits of This Approach
 
-### **Why This Plugin vs. `homebridge-sanremo-cube`:**
+### **Why This Plugin vs. `homebridge-sanremo-cube-coffeemachine`:**
 
 1. **Better Architecture**
    - Platform-based (supports multiple machines)
@@ -274,7 +274,7 @@ The `config.schema.json` provides a UI in Homebridge Config UI-X:
 
 ## 🔄 Migration Path
 
-### **From `homebridge-sanremo-cube` to `homebridge-sanremo-coffee-machines`:**
+### **From `homebridge-sanremo-cube-coffeemachine` to `homebridge-sanremo-coffee-machines`:**
 
 1. **Backup current config** (already done in your backups)
 2. **Uninstall old plugin**

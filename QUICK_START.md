@@ -85,7 +85,7 @@ git push origin feature/automatic-polling
 
 ```bash
 # Remove old plugin
-npm uninstall homebridge-sanremo-cube
+npm uninstall homebridge-sanremo-cube-coffeemachine
 
 # Install new plugin from your GitHub fork (replace YOUR_USERNAME)
 npm install https://github.com/YOUR_USERNAME/homebridge-sanremo-coffee-machines.git#feature/automatic-polling
@@ -108,7 +108,7 @@ ssh franc@192.168.68.101
 sudo docker exec -it homebridge bash
 
 # Remove old plugin
-npm uninstall homebridge-sanremo-cube
+npm uninstall homebridge-sanremo-cube-coffeemachine
 
 # Install new plugin (replace YOUR_USERNAME)
 npm install https://github.com/YOUR_USERNAME/homebridge-sanremo-coffee-machines.git#feature/automatic-polling
@@ -246,7 +246,7 @@ All documentation is in the repository:
 # Check if plugin is installed
 sudo docker exec -it homebridge bash
 npm list | grep sanremo
-# Should show: homebridge-sanremo-coffee-machines@1.2.0
+# Should show: homebridge-sanremo-cube-coffeemachine@1.2.0
 ```
 
 ### **No polling messages in logs**
@@ -277,7 +277,7 @@ If something doesn't work:
 ## 🎯 Summary
 
 **What you're installing:**
-- Plugin: `homebridge-sanremo-coffee-machines` v1.2.0
+- Plugin: `homebridge-sanremo-cube-coffeemachine` v1.2.0
 - Feature: Automatic status polling every 5 seconds
 - Benefit: Real-time accurate status in Home app
 

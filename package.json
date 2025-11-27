@@ -2,9 +2,9 @@
   
   "displayName": "Sanremo Cube for Homebridge",
   
-  "name": "homebridge-sanremo-coffee-machines",
+  "name": "homebridge-sanremo-cube-coffeemachine",
   
-  "version": "1.3.0",
+  "version": "1.4.0",
   
   "description": "Homebridge plugin for Sanremo Coffee Machines. Control your Sanremo Cube coffee machine via HomeKit with temperature monitoring, power control, and filter maintenance tracking.",
   
@@ -26,7 +26,7 @@
   "homebridge": "^1.6.0 || ^2.0.0-beta.0",
   
     
-  "node": "^18.20.4 || ^20.15.1 || ^22.0.0"
+  "node": ">=18.20.4 <25"
   
   },
   
@@ -60,6 +60,10 @@
     "homebridge",
     "sanremo",
     "coffee",
+    "sanremo-cube",
+    "sanremo cube",
+    "sanremo coffee",
+    "espresso",
     "coffee-machine",
     "homekit",
     "heater-cooler",
@@ -109,7 +113,10 @@
   },
   
   "homepage": "https://github.com/fdierer/homebridge-sanremo-coffee-machines#readme",
-  "author": "Franc Dierer",
+  "author": {
+    "name": "Franc Dierer",
+    "url": "https://github.com/fdierer"
+  },
   "contributors": [
     {
       "name": "Nareg Sinenian",

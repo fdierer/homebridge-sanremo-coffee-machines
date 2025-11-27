@@ -35,7 +35,7 @@ Since SSH is disabled, you'll need to use the Synology Docker UI or enable SSH t
 sudo docker exec -it homebridge bash
 
 # Remove the old plugin
-npm uninstall homebridge-sanremo-cube
+npm uninstall homebridge-sanremo-cube-coffeemachine
 
 # Exit container
 exit
@@ -132,10 +132,10 @@ cd "/Users/francisdierer/Dev Environment/homebridge-sanremo-coffee-machines"
 # Create a tarball
 npm pack
 
-# This creates: homebridge-sanremo-coffee-machines-1.2.0.tgz
+# This creates: homebridge-sanremo-cube-coffeemachine-1.2.0.tgz
 
 # Copy to NAS (you'll need to enable SSH temporarily or use file sharing)
-scp homebridge-sanremo-coffee-machines-1.2.0.tgz franc@192.168.68.101:/volume1/docker/homebridge/
+scp homebridge-sanremo-cube-coffeemachine-1.2.0.tgz franc@192.168.68.101:/volume1/docker/homebridge/
 
 # SSH into NAS
 ssh franc@192.168.68.101
@@ -143,8 +143,8 @@ ssh franc@192.168.68.101
 # Install in Homebridge container
 sudo docker exec -it homebridge bash
 cd /homebridge
-npm uninstall homebridge-sanremo-cube
-npm install ./homebridge-sanremo-coffee-machines-1.2.0.tgz
+npm uninstall homebridge-sanremo-cube-coffeemachine
+npm install ./homebridge-sanremo-cube-coffeemachine-1.2.0.tgz
 exit
 
 # Restart
@@ -252,14 +252,14 @@ sudo docker restart homebridge
 
 **Check logs for:**
 ```
-Error: Cannot find module 'homebridge-sanremo-coffee-machines'
+Error: Cannot find module 'homebridge-sanremo-cube-coffeemachine'
 ```
 
 **Solution:**
 ```bash
 sudo docker exec -it homebridge bash
 npm list | grep sanremo
-# Should show: homebridge-sanremo-coffee-machines@1.2.0
+# Should show: homebridge-sanremo-cube-coffeemachine@1.2.0
 ```
 
 ### **No Polling Messages in Logs**
@@ -270,7 +270,7 @@ npm list | grep sanremo
 
 ### **Temperature Warnings Still Appearing**
 
-This means you're still using the old `homebridge-sanremo-cube` plugin.
+This means you're still using the old `homebridge-sanremo-cube-coffeemachine` plugin.
 
 **Verify:**
 ```bash
@@ -278,7 +278,7 @@ sudo docker exec -it homebridge bash
 npm list | grep sanremo
 ```
 
-Should show `homebridge-sanremo-coffee-machines`, not `homebridge-sanremo-cube`.
+Should show `homebridge-sanremo-cube-coffeemachine`.
 
 ### **Status Still Not Updating**
 

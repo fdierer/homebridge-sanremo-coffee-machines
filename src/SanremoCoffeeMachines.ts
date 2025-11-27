@@ -1,6 +1,6 @@
-import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
+import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, Service, Characteristic } from 'homebridge';
 
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
+import { PLATFORM_NAME, PLUGIN_NAME, SanremoPlatformConfig } from './settings';
 import { SanremoCubeAccessory } from './SanremoCubeAccessory';
 
 /**
@@ -14,13 +14,23 @@ export class SanremoCoffeeMachines implements DynamicPlatformPlugin {
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
+  private readonly debugLogging: boolean;
+  private debugLog(message: string) {
+    if (this.debugLogging) {
+      this.log.debug(message);
+    }
+  }
     
   constructor(
     public readonly log: Logger,
-    public readonly config: PlatformConfig,
+    public readonly config: SanremoPlatformConfig,
     public readonly api: API,
   ) {
     this.log.debug('Finished initializing platform:', this.config.name);
+    this.debugLogging = this.config.debugLogging === true;
+    if (this.debugLogging) {
+      this.log.info('Debug logging enabled');
+    }
 
     // When this event is fired it means Homebridge has restored all cached accessories from disk.
     // Dynamic Platform plugins should only register new accessories after this event was fired,
@@ -50,13 +60,39 @@ export class SanremoCoffeeMachines implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   discoverDevices() {
-    // loop over the discovered devices and register each one if it has not already been registered
-    for (const device of this.config.machines) {
+    if (!Array.isArray(this.config.machines) || this.config.machines.length === 0) {
+      this.log.warn('No Sanremo machines configured; skipping discovery.');
+      return;
+    }
+
+    this.config.machines.forEach((device, index) => {
+      const hasConfiguredName = typeof device?.name === 'string' && device.name.trim().length > 0;
+      const name = hasConfiguredName ? device!.name : 'Sanremo Machine';
+      const ip = typeof device?.ip === 'string' ? device.ip : '';
+      if (!hasConfiguredName) {
+        this.log.warn(`Machine at index ${index} is missing a name; defaulting to "${name}".`);
+      }
+      if (!ip) {
+        this.log.warn(`Machine "${name}" is missing an IP address in config. Using fallback UUID seed.`);
+      }
+      const serialNumber = (device as any)?.serialNumber;
+      const serial = typeof serialNumber === 'string' && serialNumber.length > 0
+        ? serialNumber
+        : (typeof (device as any)?.serial === 'string' ? (device as any).serial : '');
+      const seedParts = [
+        'SanremoCoffeeMachines',
+        name,
+        ip,
+        serial,
+        index.toString(),
+      ].filter(Boolean);
+      const uuidSeed = seedParts.join('-') || `SanremoCoffeeMachines-${index}`;
+      this.debugLog(`Accessory seed for "${name}": ${uuidSeed}`);
 
       // generate a unique id for the accessory this should be generated from
       // something globally unique, but constant, for example, the device serial
       // number or MAC address
-      const uuid = this.api.hap.uuid.generate(device.ip);
+      const uuid = this.api.hap.uuid.generate(uuidSeed);
 
       // see if an accessory with the same uuid has already been registered and restored from
       // the cached devices we stored in the `configureAccessory` method above
@@ -75,7 +111,7 @@ export class SanremoCoffeeMachines implements DynamicPlatformPlugin {
         const pollingInterval = device.pollingInterval || 30;
         const enablePowerSwitch = device.enablePowerSwitch || false;
         const filterLifeDays = device.filterLifeDays || 180;
-        new SanremoCubeAccessory(this, existingAccessory, device.ip, pollingInterval, enablePowerSwitch, filterLifeDays);
+        new SanremoCubeAccessory(this, existingAccessory, ip, pollingInterval, enablePowerSwitch, filterLifeDays, this.debugLogging);
 
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
         // remove platform accessories when no longer present
@@ -83,10 +119,10 @@ export class SanremoCoffeeMachines implements DynamicPlatformPlugin {
         // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
       } else {
         // the accessory does not yet exist, so we need to create it
-        this.log.info('Adding new accessory:', device.name);
+        this.log.info('Adding new accessory:', name);
 
         // create a new accessory
-        const accessory = new this.api.platformAccessory(device.name, uuid);
+        const accessory = new this.api.platformAccessory(name, uuid);
 
         // store a copy of the device object in the `accessory.context`
         // the `context` property can be used to store any data about the accessory you may need
@@ -97,11 +133,11 @@ export class SanremoCoffeeMachines implements DynamicPlatformPlugin {
         const pollingInterval = device.pollingInterval || 30;
         const enablePowerSwitch = device.enablePowerSwitch || false;
         const filterLifeDays = device.filterLifeDays || 180;
-        new SanremoCubeAccessory(this, accessory, device.ip, pollingInterval, enablePowerSwitch, filterLifeDays);
+        new SanremoCubeAccessory(this, accessory, ip, pollingInterval, enablePowerSwitch, filterLifeDays, this.debugLogging);
 
         // link the accessory to your platform
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
       }
-    }
+    });
   }
 }

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2024-XX-XX
+
+### Added
+- Optional `debugLogging` configuration flag for verbose troubleshooting output.
+- Additional documentation covering installation, setup, and child bridge usage.
+
+### Changed
+- Hardened accessory UUID generation to prevent startup crashes when config fields are missing.
+- Relaxed Node.js engine requirement to `>=18.20.4 <25` for Synology compatibility.
+- HeaterCooler services now start with safe default values to avoid HomeKit warnings.
+
 ## [1.3.0] - 2024-XX-XX
 
 ### Added
@@ -21,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved naming conventions
   - Consistent "Sanremo Cube" naming across all services
   - Accessory defaults to "Sanremo Cube" name
+- Renamed npm package to `homebridge-sanremo-cube` for publication
 - Enhanced documentation
   - Complete README rewrite
   - Added PLUGIN_HOMEPAGE.md for Homebridge UI

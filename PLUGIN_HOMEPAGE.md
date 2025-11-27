@@ -18,7 +18,7 @@ This plugin provides full HomeKit integration for Sanremo Cube coffee machines, 
 ## Installation
 
 ```bash
-npm install -g homebridge-sanremo-coffee-machines
+npm install -g homebridge-sanremo-cube-coffeemachine
 ```
 
 After installation, restart Homebridge and add the platform to your `config.json`.

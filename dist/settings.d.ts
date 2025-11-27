@@ -1,9 +1,13 @@
 /**
  * This is the name of the platform that users will use to register the plugin in the Homebridge config.json
  */
+import { PlatformConfig } from 'homebridge';
 export declare const PLATFORM_NAME = "SanremoCoffeeMachines";
 /**
  * This must match the name of your plugin as defined the package.json
  */
-export declare const PLUGIN_NAME = "homebridge-sanremo-coffee-machines";
+export declare const PLUGIN_NAME = "homebridge-sanremo-cube-coffeemachine";
+export interface SanremoPlatformConfig extends PlatformConfig {
+    debugLogging?: boolean;
+}
 //# sourceMappingURL=settings.d.ts.map
