@@ -326,6 +326,10 @@ Contributions are welcome! Please:
 - **Homebridge Discord**: Join the Homebridge community
 - **Homebridge Reddit**: r/homebridge
 
+## Release history
+
+Detailed release notes and changelog are available in [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details
