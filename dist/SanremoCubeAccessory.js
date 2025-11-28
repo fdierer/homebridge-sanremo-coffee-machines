@@ -210,11 +210,39 @@ class SanremoCubeAccessory {
         })
             .then(r => r.json())
             .then((r) => {
-            const raw = Number(r[this.regString][this.rwRegIndexTemp][1]) / 10;
-            const clamped = Math.min(this.cubeMaxTempDegC, Math.max(this.cubeMinTempDegC, raw));
-            this.rwRegTemp = clamped;
-            this.debugLog(`Received read/write parameters: target temp=${this.rwRegTemp}`);
-        }).catch(error => console.error('Error', error));
+            try {
+                // Validate response structure
+                if (!r || typeof r !== 'object') {
+                    this.platform.log.error(`[${this.accessory.displayName}] Invalid read/write response: not an object`);
+                    return false;
+                }
+                if (!r[this.regString] || !Array.isArray(r[this.regString])) {
+                    this.platform.log.error(`[${this.accessory.displayName}] Invalid read/write response: missing or invalid '${this.regString}' array. Response: ${JSON.stringify(r).substring(0, 200)}`);
+                    return false;
+                }
+                const regArray = r[this.regString];
+                if (!regArray[this.rwRegIndexTemp] || !Array.isArray(regArray[this.rwRegIndexTemp]) || regArray[this.rwRegIndexTemp].length < 2) {
+                    this.platform.log.error(`[${this.accessory.displayName}] Invalid read/write response: missing or invalid temperature register at index ${this.rwRegIndexTemp}. Response: ${JSON.stringify(r).substring(0, 200)}`);
+                    return false;
+                }
+                const raw = Number(regArray[this.rwRegIndexTemp][1]) / 10;
+                if (isNaN(raw)) {
+                    this.platform.log.error(`[${this.accessory.displayName}] Invalid read/write response: temperature value is not a number. Value: ${regArray[this.rwRegIndexTemp][1]}`);
+                    return false;
+                }
+                const clamped = Math.min(this.cubeMaxTempDegC, Math.max(this.cubeMinTempDegC, raw));
+                this.rwRegTemp = clamped;
+                this.debugLog(`Received read/write parameters: target temp=${this.rwRegTemp}`);
+                return true;
+            }
+            catch (error) {
+                this.platform.log.error(`[${this.accessory.displayName}] Error parsing read/write parameters:`, error);
+                return false;
+            }
+        }).catch(error => {
+            this.platform.log.error(`[${this.accessory.displayName}] Network error in getReadWriteParameters:`, error);
+            return false;
+        });
     }
     getReadOnlyParameters() {
         this.debugLog('Sending getReadOnlyParameters request');
@@ -232,15 +260,60 @@ class SanremoCubeAccessory {
             throw new this.platform.api.hap.HapStatusError(-70402 /* this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE */);
         })
             .then((responseJson) => {
-            this.roRegStatus = Number(responseJson[this.regString][this.roRegIndexStatus][1]);
-            this.roRegAlarm = Number(responseJson[this.regString][this.roRegIndexAlarm][1]);
-            this.roRegTemp = Number(responseJson[this.regString][this.roRegIndexTemp][1]);
-            this.roRegFilterDaysRemaining = Number(responseJson[this.regString][this.roRegIndexFilterDaysRemaining][1]);
-            this.roFilterChangeThresholdDays = Number(responseJson['ThesholdWarningChangeFilter']);
-            this.debugLog(`Received read-only parameters: status=${this.roRegStatus}, alarm=${this.roRegAlarm}, temp=${this.roRegTemp}`);
+            try {
+                // Validate response structure
+                if (!responseJson || typeof responseJson !== 'object') {
+                    this.platform.log.error(`[${this.accessory.displayName}] Invalid read-only response: not an object`);
+                    return false;
+                }
+                if (!responseJson[this.regString] || !Array.isArray(responseJson[this.regString])) {
+                    this.platform.log.error(`[${this.accessory.displayName}] Invalid read-only response: missing or invalid '${this.regString}' array. Response: ${JSON.stringify(responseJson).substring(0, 200)}`);
+                    return false;
+                }
+                const regArray = responseJson[this.regString];
+                // Helper to safely get a register value
+                const getRegisterValue = (index, name) => {
+                    if (!regArray[index] || !Array.isArray(regArray[index]) || regArray[index].length < 2) {
+                        this.platform.log.error(`[${this.accessory.displayName}] Invalid read-only response: missing or invalid '${name}' register at index ${index}. Response: ${JSON.stringify(responseJson).substring(0, 200)}`);
+                        return null;
+                    }
+                    const value = Number(regArray[index][1]);
+                    if (isNaN(value)) {
+                        this.platform.log.error(`[${this.accessory.displayName}] Invalid read-only response: '${name}' value is not a number at index ${index}. Value: ${regArray[index][1]}`);
+                        return null;
+                    }
+                    return value;
+                };
+                // Extract all register values with validation
+                const status = getRegisterValue(this.roRegIndexStatus, 'status');
+                const alarm = getRegisterValue(this.roRegIndexAlarm, 'alarm');
+                const temp = getRegisterValue(this.roRegIndexTemp, 'temperature');
+                const filterDays = getRegisterValue(this.roRegIndexFilterDaysRemaining, 'filterDaysRemaining');
+                // If any critical register is missing, fail the entire parse
+                if (status === null || alarm === null || temp === null || filterDays === null) {
+                    return false;
+                }
+                this.roRegStatus = status;
+                this.roRegAlarm = alarm;
+                this.roRegTemp = temp;
+                this.roRegFilterDaysRemaining = filterDays;
+                // Filter threshold is optional, use default if missing
+                if (responseJson['ThesholdWarningChangeFilter'] !== undefined) {
+                    const threshold = Number(responseJson['ThesholdWarningChangeFilter']);
+                    if (!isNaN(threshold)) {
+                        this.roFilterChangeThresholdDays = threshold;
+                    }
+                }
+                this.debugLog(`Received read-only parameters: status=${this.roRegStatus}, alarm=${this.roRegAlarm}, temp=${this.roRegTemp}`);
+                return true;
+            }
+            catch (error) {
+                this.platform.log.error(`[${this.accessory.displayName}] Error parsing read-only parameters:`, error);
+                return false;
+            }
         })
             .catch((error) => {
-            console.log(error);
+            this.platform.log.error(`[${this.accessory.displayName}] Network error in getReadOnlyParameters:`, error);
             return false;
         });
     }

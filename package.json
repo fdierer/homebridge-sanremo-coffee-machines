@@ -4,7 +4,7 @@
   
   "name": "homebridge-sanremo-cube-coffeemachine",
   
-  "version": "1.4.3",
+  "version": "1.4.4",
   
   "description": "Homebridge plugin for Sanremo Coffee Machines. Control your Sanremo Cube coffee machine via HomeKit with real-time temperature monitoring, power control, automatic status polling, and filter maintenance tracking.",
   

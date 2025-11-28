@@ -2,7 +2,7 @@
 
 ## ✅ **FULLY COMPLIANT**
 
-This plugin (v1.4.3) is **fully compatible** with Homebridge v1.6+, Homebridge v2.0, and HAP-NodeJS v1.
+This plugin (v1.4.4) is **fully compatible** with Homebridge v1.6+, Homebridge v2.0, and HAP-NodeJS v1.
 
 ---
 
@@ -220,13 +220,13 @@ The plugin:
 
 ## 🎉 Conclusion
 
-**Version 1.4.3 is certified Homebridge v2.0 compliant!**
+**Version 1.4.4 is certified Homebridge v2.0 compliant!**
 
 No additional changes needed for v2.0 compatibility. The plugin uses modern APIs and follows all current best practices.
 
 ---
 
 **Last Updated:** November 28, 2025  
-**Plugin Version:** 1.4.3  
+**Plugin Version:** 1.4.4  
 **Compliance Status:** ✅ PASS
 
