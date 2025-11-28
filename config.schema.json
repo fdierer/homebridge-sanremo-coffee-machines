@@ -9,7 +9,8 @@
         "title": "Platform Name",
         "type": "string",
         "required": true,
-        "default": "SanremoCoffeeMachines"
+        "default": "SanremoCoffeeMachines",
+        "description": "A name for this platform instance. You can use any name you prefer, or leave the default."
       },
       "debugLogging": {
         "title": "Enable Debug Logging",
@@ -28,7 +29,7 @@
               "type": "string",
               "required": true,
               "default": "Sanremo Cube",
-              "description": "The name that will appear in HomeKit"
+              "description": "The name that will appear in HomeKit for this coffee machine. This is the accessory name shown in the Apple Home app."
             },
             "type": {
               "title": "Machine Type",
@@ -36,7 +37,7 @@
               "required": true,
               "default": "Cube",
               "enum": ["Cube"],
-              "description": "Currently only 'Cube' is supported"
+              "description": "The model of Sanremo coffee machine. Currently only 'Cube' is supported. This field is required."
             },
             "ip": {
               "title": "IP Address",
@@ -44,7 +45,7 @@
               "required": true,
               "format": "ipv4",
               "placeholder": "192.168.1.100",
-              "description": "Static IP address of the coffee machine"
+              "description": "The static IPv4 address of your Sanremo Cube coffee machine. The machine must be on the same network as Homebridge and have a static IP address assigned. This field is required."
             },
             "pollingInterval": {
               "title": "Polling Interval (seconds)",
@@ -52,7 +53,7 @@
               "default": 30,
               "minimum": 5,
               "maximum": 300,
-              "description": "How often to check machine status (5-300 seconds). Lower values = faster updates but more network traffic."
+              "description": "How often the plugin checks the coffee machine status (5-300 seconds). Lower values provide faster updates but increase network traffic. Default: 30 seconds. Recommended: 5-10 seconds for active use, 30+ seconds for minimal updates."
             },
             "enablePowerSwitch": {
               "title": "Enable Power Switch",
@@ -66,7 +67,7 @@
               "default": 180,
               "minimum": 1,
               "maximum": 365,
-              "description": "Expected filter life in days. Used for filter maintenance reminders."
+              "description": "Expected filter life in days (1-365). Used to calculate filter maintenance reminders and track replacement dates. Default: 180 days. Adjust based on your water quality and usage."
             }
           }
         }

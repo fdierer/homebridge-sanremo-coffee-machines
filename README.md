@@ -32,6 +32,32 @@ This plugin provides full HomeKit integration for Sanremo Cube coffee machines, 
    - Homebridge v1.6.0 or later (v2.0 compatible ✅)
    - Node.js v18.20.4 or newer (supported up to, but not including, v25)
 
+## Quick Start
+
+### Install from Homebridge UI
+
+1. Open the Homebridge UI (Config UI-X)
+2. Go to **Plugins** → **Search**
+3. Search for **"Sanremo Cube for Homebridge"**
+4. Click **Install**
+5. Restart Homebridge
+
+### Configure Your Machine
+
+1. After restart, go to **Plugins** → **Sanremo Cube for Homebridge**
+2. Click the **Settings** (gear icon) to configure
+3. **Enable Child Bridge** (recommended) - this isolates the plugin for better stability
+4. Add your first machine:
+   - **Machine Name**: The name that will appear in HomeKit (e.g., "Sanremo Cube")
+   - **Machine Type**: Select "Cube"
+   - **IP Address**: Enter the static IP address of your coffee machine (must be on the same network as Homebridge)
+5. **Polling Interval**: Defaults to 30 seconds. For active monitoring, values between 5-10 seconds are recommended
+6. Save and restart Homebridge
+
+Your Sanremo Cube should now appear in the Apple Home app.
+
+> **Note**: For detailed installation instructions, see [INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md). For a quick reference, see [QUICK_START.md](QUICK_START.md).
+
 ## Installation
 
 ### From npm
@@ -328,7 +354,13 @@ Contributions are welcome! Please:
 
 ## Release history
 
-Detailed release notes and changelog are available in [CHANGELOG.md](CHANGELOG.md).
+Full release notes and detailed changelog are available in [CHANGELOG.md](CHANGELOG.md).
+
+Recent versions:
+
+- **1.4.1**: Metadata and changelog packaging improvements for Homebridge UI integration
+- **1.4.0**: Debug logging option, improved installation documentation, safer UUID generation defaults
+- **1.3.x**: Initial fork release with stability fixes, automatic polling, and Homebridge v2 compatibility
 
 ## License
 

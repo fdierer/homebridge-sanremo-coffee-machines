@@ -2,7 +2,7 @@
 
 ## ✅ **FULLY COMPLIANT**
 
-This plugin (v1.2.0) is **fully compatible** with Homebridge v2.0 and HAP-NodeJS v1.
+This plugin (v1.4.1) is **fully compatible** with Homebridge v1.6+, Homebridge v2.0, and HAP-NodeJS v1.
 
 ---
 
@@ -26,7 +26,7 @@ Based on the [official migration guide](https://github.com/homebridge/homebridge
 | Requirement | Status | Details |
 |-------------|--------|---------|
 | `engines.homebridge` updated | ✅ Pass | `^1.6.0 \|\| ^2.0.0-beta.0` |
-| `engines.node` updated | ✅ Pass | `^18.20.4 \|\| ^20.15.1 \|\| ^22.0.0` |
+| `engines.node` updated | ✅ Pass | `>=18.20.4 <25` |
 | No breaking API usage | ✅ Pass | Uses standard platform API |
 | Child bridge compatible | ✅ Pass | Tested with child bridge architecture |
 | TypeScript compilation | ✅ Pass | Builds successfully |
@@ -84,6 +84,8 @@ this.heaterService = this.accessory.getService(this.platform.Service.HeaterCoole
 | v18.20.4+ | ✅ Yes | ✅ Yes |
 | v20.15.1+ | ✅ Yes | ✅ **Recommended** |
 | v22.0.0+ | ✅ Yes | ✅ Yes |
+| v24.x | ✅ Yes | ✅ Yes |
+| v25+ | ❌ No | Not yet supported |
 
 ---
 
@@ -98,11 +100,11 @@ this.heaterService = this.accessory.getService(this.platform.Service.HeaterCoole
 ```
 ❌ Not Homebridge v2 ready
 
-### **After (v1.2.0):**
+### **After (v1.4.1):**
 ```json
 "engines": {
   "homebridge": "^1.6.0 || ^2.0.0-beta.0",
-  "node": "^18.20.4 || ^20.15.1 || ^22.0.0"
+  "node": ">=18.20.4 <25"
 }
 ```
 ✅ **Homebridge v2 ready!**
@@ -224,7 +226,7 @@ No additional changes needed for v2.0 compatibility. The plugin uses modern APIs
 
 ---
 
-**Last Updated:** November 22, 2025  
-**Plugin Version:** 1.2.0  
+**Last Updated:** November 27, 2025  
+**Plugin Version:** 1.4.1  
 **Compliance Status:** ✅ PASS
 
