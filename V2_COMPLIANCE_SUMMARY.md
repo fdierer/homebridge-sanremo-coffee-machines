@@ -2,7 +2,7 @@
 
 ## ✅ **FULLY COMPATIBLE**
 
-This plugin (v1.4.1) is **fully compatible** with Homebridge v1.6+ and Homebridge v2.0.
+This plugin (v1.4.3) is **fully compatible** with Homebridge v1.6+ and Homebridge v2.0.
 
 ---
 
@@ -92,7 +92,7 @@ Debug logging is **opt-in** via the `debugLogging` configuration field (default:
 
 - ✅ `name`: `homebridge-sanremo-cube-coffeemachine`
 - ✅ `displayName`: `Sanremo Cube for Homebridge`
-- ✅ `version`: `1.4.1`
+- ✅ `version`: `1.4.3`
 - ✅ `description`: Clear, accurate description
 - ✅ `engines.homebridge`: `^1.6.0 || ^2.0.0-beta.0`
 - ✅ `engines.node`: `>=18.20.4 <25`
@@ -145,8 +145,8 @@ For Homebridge plugin verification, this plugin meets the following criteria:
 
 ---
 
-**Last Updated**: 2025-11-27  
-**Plugin Version**: 1.4.1  
+**Last Updated**: 2025-11-28  
+**Plugin Version**: 1.4.3  
 **Compliance Status**: ✅ **PASS** - Ready for Homebridge v2.0
 
 ---

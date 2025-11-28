@@ -354,13 +354,14 @@ Contributions are welcome! Please:
 
 ## Release history
 
-Full release notes and detailed changelog are available in [CHANGELOG.md](CHANGELOG.md).
+Full release notes and detailed changelog are available in [CHANGELOG.md](./CHANGELOG.md).
 
 Recent versions:
 
-- **1.4.1**: Metadata and changelog packaging improvements for Homebridge UI integration
-- **1.4.0**: Debug logging option, improved installation documentation, safer UUID generation defaults
-- **1.3.x**: Initial fork release with stability fixes, automatic polling, and Homebridge v2 compatibility
+- **1.4.2**: Homebridge v2 metadata and documentation improvements, enhanced search keywords, clearer install and configuration guides.
+- **1.4.1**: Metadata and changelog packaging improvements for Homebridge UI integration.
+- **1.4.0**: Debug logging option, improved installation documentation, safer UUID generation defaults.
+- **1.3.x**: Initial fork release with stability fixes, automatic polling, and Homebridge v2 compatibility.
 
 ## License
 

@@ -72,8 +72,8 @@ export declare class SanremoCubeAccessory {
      * Stop polling (cleanup)
      */
     stopPolling(): void;
-    getReadWriteParameters(): any;
-    getReadOnlyParameters(): any;
+    getReadWriteParameters(): Promise<void>;
+    getReadOnlyParameters(): Promise<boolean | void>;
     /*** Heater-cooler implementation ***/
     handleActiveGet(): Promise<boolean>;
     handleActiveSet(value: CharacteristicValue): Promise<void>;

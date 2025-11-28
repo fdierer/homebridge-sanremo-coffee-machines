@@ -2,7 +2,7 @@
 
 ## ✅ **FULLY COMPLIANT**
 
-This plugin (v1.4.1) is **fully compatible** with Homebridge v1.6+, Homebridge v2.0, and HAP-NodeJS v1.
+This plugin (v1.4.3) is **fully compatible** with Homebridge v1.6+, Homebridge v2.0, and HAP-NodeJS v1.
 
 ---
 
@@ -100,7 +100,7 @@ this.heaterService = this.accessory.getService(this.platform.Service.HeaterCoole
 ```
 ❌ Not Homebridge v2 ready
 
-### **After (v1.4.1):**
+### **After (v1.4.2):**
 ```json
 "engines": {
   "homebridge": "^1.6.0 || ^2.0.0-beta.0",
@@ -220,13 +220,13 @@ The plugin:
 
 ## 🎉 Conclusion
 
-**Version 1.2.0 is certified Homebridge v2.0 compliant!**
+**Version 1.4.3 is certified Homebridge v2.0 compliant!**
 
 No additional changes needed for v2.0 compatibility. The plugin uses modern APIs and follows all current best practices.
 
 ---
 
-**Last Updated:** November 27, 2025  
-**Plugin Version:** 1.4.1  
+**Last Updated:** November 28, 2025  
+**Plugin Version:** 1.4.3  
 **Compliance Status:** ✅ PASS
 

@@ -2,7 +2,7 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import { SanremoCoffeeMachines } from './SanremoCoffeeMachines';
 
-import fetch from "node-fetch";
+import { fetch } from "undici";
 
 /**
  * Platform Accessory
@@ -272,7 +272,7 @@ export class SanremoCubeAccessory {
             body: this.cmdGetReadWriteParameters,
         })
         .then(r => r.json())
-        .then(r => {
+        .then((r: any) => {
             const raw = Number(r[this.regString][this.rwRegIndexTemp][1]) / 10;
             const clamped =
                 Math.min(this.cubeMaxTempDegC,
@@ -297,7 +297,7 @@ export class SanremoCubeAccessory {
           }
           throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
         })
-        .then((responseJson) => {
+        .then((responseJson: any) => {
             this.roRegStatus = Number(responseJson[this.regString][this.roRegIndexStatus][1]);
             this.roRegAlarm = Number(responseJson[this.regString][this.roRegIndexAlarm][1]);
             this.roRegTemp = Number(responseJson[this.regString][this.roRegIndexTemp][1]);

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2025-11-28
+
+### Fixed
+- Fixed `config.schema.json` to use correct JSON Schema `required` arrays instead of inline `required: true` properties.
+- Replaced `node-fetch` with `undici` to address dependency security vulnerabilities.
+
 ## [1.4.2] - 2025-11-28
 ### Changed
 - Documentation and metadata improvements for Homebridge v2 readiness and plugin homepage.

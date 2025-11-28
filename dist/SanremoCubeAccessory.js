@@ -1,10 +1,7 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SanremoCubeAccessory = void 0;
-const node_fetch_1 = __importDefault(require("node-fetch"));
+const undici_1 = require("undici");
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
@@ -203,7 +200,7 @@ class SanremoCubeAccessory {
     }
     getReadWriteParameters() {
         this.debugLog('Sending getReadWriteParameters request');
-        return (0, node_fetch_1.default)(this.postUrl, {
+        return (0, undici_1.fetch)(this.postUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -212,7 +209,7 @@ class SanremoCubeAccessory {
             body: this.cmdGetReadWriteParameters,
         })
             .then(r => r.json())
-            .then(r => {
+            .then((r) => {
             const raw = Number(r[this.regString][this.rwRegIndexTemp][1]) / 10;
             const clamped = Math.min(this.cubeMaxTempDegC, Math.max(this.cubeMinTempDegC, raw));
             this.rwRegTemp = clamped;
@@ -221,7 +218,7 @@ class SanremoCubeAccessory {
     }
     getReadOnlyParameters() {
         this.debugLog('Sending getReadOnlyParameters request');
-        return (0, node_fetch_1.default)(this.postUrl, {
+        return (0, undici_1.fetch)(this.postUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -257,7 +254,7 @@ class SanremoCubeAccessory {
     async handleActiveSet(value) {
         const content = value ? this.cmdActive : this.cmdStandby;
         this.debugLog(`Sending power ${value ? 'ON' : 'STANDBY'} command`);
-        (0, node_fetch_1.default)(this.postUrl, {
+        (0, undici_1.fetch)(this.postUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -278,7 +275,7 @@ class SanremoCubeAccessory {
         this.rwRegTemp = targetTemperature;
         this.debugLog(`Sending target temperature ${targetTemperature}°C`);
         const content = this.cmdSetTemperature + String(targetTemperature);
-        (0, node_fetch_1.default)(this.postUrl, {
+        (0, undici_1.fetch)(this.postUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -322,7 +319,7 @@ class SanremoCubeAccessory {
     }
     async ResetFilterIndicationSet() {
         this.debugLog('Sending reset filter indication command');
-        (0, node_fetch_1.default)(this.postUrl, {
+        (0, undici_1.fetch)(this.postUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -392,7 +389,7 @@ class SanremoCubeAccessory {
         const content = isOn ? this.cmdActive : this.cmdStandby;
         this.platform.log.info(`${isOn ? 'Powering ON' : 'Powering OFF'} ${this.accessory.displayName} via Power Switch`);
         this.debugLog(`Power switch set to ${isOn ? 'ON' : 'OFF'}`);
-        (0, node_fetch_1.default)(this.postUrl, {
+        (0, undici_1.fetch)(this.postUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

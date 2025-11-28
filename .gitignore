@@ -10,6 +10,7 @@ AI_CONTEXT.md
 
 # Build output
 dist/
+*.tgz
 
 # Logs
 *.log

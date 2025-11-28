@@ -12,7 +12,7 @@ I'm requesting verification for my plugin `homebridge-sanremo-cube-coffeemachine
 
 **Repository**: https://github.com/fdierer/homebridge-sanremo-coffee-machines  
 **npm Package**: https://www.npmjs.com/package/homebridge-sanremo-cube-coffeemachine  
-**Current Version**: 1.4.1
+**Current Version**: 1.4.3
 
 ---
 
@@ -48,7 +48,7 @@ The plugin implements automatic status polling with configurable intervals, prop
 
 ## Next Steps
 
-I'm happy to provide any additional information, answer questions, or make adjustments if needed. The plugin is ready for verification and has been published to npm as `homebridge-sanremo-cube-coffeemachine@1.4.1`.
+I'm happy to provide any additional information, answer questions, or make adjustments if needed. The plugin is ready for verification and has been published to npm as `homebridge-sanremo-cube-coffeemachine@1.4.3`.
 
 Thank you for your consideration.
 
