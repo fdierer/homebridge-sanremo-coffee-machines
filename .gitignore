@@ -2,6 +2,12 @@
 node_modules/
 package-lock.json
 
+# Local working notes
+DevNotes.rtf
+
+# Working with AI
+AI_CONTEXT.md
+
 # Build output
 dist/
 
