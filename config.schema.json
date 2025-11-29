@@ -4,11 +4,11 @@
   "singular": false,
   "schema": {
     "type": "object",
+    "required": ["name", "machines"],
     "properties": {
       "name": {
         "title": "Platform Name",
         "type": "string",
-        "required": true,
         "default": "SanremoCoffeeMachines",
         "description": "A name for this platform instance. You can use any name you prefer, or leave the default."
       },
@@ -23,18 +23,17 @@
         "type": "array",
         "items": {
           "type": "object",
+          "required": ["name", "type", "ip"],
           "properties": {
             "name": {
               "title": "Machine Name",
               "type": "string",
-              "required": true,
               "default": "Sanremo Cube",
               "description": "The name that will appear in HomeKit for this coffee machine. This is the accessory name shown in the Apple Home app."
             },
             "type": {
               "title": "Machine Type",
               "type": "string",
-              "required": true,
               "default": "Cube",
               "enum": ["Cube"],
               "description": "The model of Sanremo coffee machine. Currently only 'Cube' is supported. This field is required."
@@ -42,7 +41,6 @@
             "ip": {
               "title": "IP Address",
               "type": "string",
-              "required": true,
               "format": "ipv4",
               "placeholder": "192.168.1.100",
               "description": "The static IPv4 address of your Sanremo Cube coffee machine. The machine must be on the same network as Homebridge and have a static IP address assigned. This field is required."

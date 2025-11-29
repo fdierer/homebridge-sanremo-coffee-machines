@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.5] - 2025-11-28
+
+### Fixed
+- Corrected JSON Schema 'required' usage in config.schema.json to satisfy Homebridge checks.
+- Added defensive checks in polling code to avoid runtime errors when the machine returns unexpected responses (behaviour for valid responses remains unchanged from 1.4.2).
+
 ## [1.4.2] - 2025-11-28
 ### Changed
 - Documentation and metadata improvements for Homebridge v2 readiness and plugin homepage.
