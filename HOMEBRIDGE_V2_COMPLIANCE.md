@@ -1,6 +1,6 @@
 # Homebridge v2 Compliance Statement  
 **Plugin:** homebridge-sanremo-cube-coffeemachine  
-**Current Version:** 1.4.5  
+**Current Version:** 1.4.6  
 **Author:** Franc Dierer  
 **Repository:** https://github.com/fdierer/homebridge-sanremo-coffee-machines  
 
@@ -8,7 +8,7 @@
 
 ## Summary
 
-This plugin is fully compatible with Homebridge v2 and has no known security vulnerabilities as of v1.4.5.
+This plugin is fully compatible with Homebridge v2 and has no known security vulnerabilities as of v1.4.6.
 
 **Key Points:**
 - Homebridge v2 compatible (also supports Homebridge v1.6+)
@@ -87,7 +87,7 @@ This ensures predictable behaviour and prevents runtime misconfiguration.
 
 ### 5.1 Dependency Posture
 
-As of version **1.4.5**, the plugin has **no direct or transitive vulnerable dependencies**.
+As of version **1.4.6**, the plugin has **no direct or transitive vulnerable dependencies**.
 
 Key points:
 - The plugin declares **only required runtime dependencies**
@@ -140,13 +140,18 @@ The plugin has been stable in daily operation and exhibits predictable failure h
 
 ## 7. Version Alignment
 
-All documentation, metadata, and runtime behaviour are aligned to **v1.4.5**, which is the version submitted for Homebridge v2 verification.
+All documentation, metadata, and runtime behaviour are aligned to **v1.4.6**. The plugin was initially submitted for Homebridge v2 verification at v1.4.5.
 
 No behavioural changes were introduced as part of the dependency correction.
 
 ---
 
 ## 8. Revision History
+
+### v1.4.6 – January 2026 (Dependency Correction Release)
+- Removed erroneous direct dependency on `hap-js` from `package.json` and published to NPM
+- Updated all documentation to reflect corrected dependency state
+- No changes to runtime behaviour, configuration schema, or Homebridge v2 compatibility
 
 ### v1.4.5 – January 2026 (Documentation & Dependency Correction)
 - Removed erroneous direct dependency on `hap-js` from `package.json`
@@ -165,7 +170,7 @@ It:
 - Enforces strict configuration validation
 - Operates entirely on the local network
 - Declares only required dependencies
-- Has no known security vulnerabilities as of v1.4.5
+- Has no known security vulnerabilities as of v1.4.6
 
 This document supersedes earlier compliance statements and reflects the current, corrected dependency posture.
 

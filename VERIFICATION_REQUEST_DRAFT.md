@@ -1,7 +1,7 @@
 # Homebridge Plugin Verification Request
 
 **Plugin name:** `homebridge-sanremo-cube-coffeemachine`  
-**Current version:** 1.4.5  
+**Current version:** 1.4.6  
 **Repository:** https://github.com/fdierer/homebridge-sanremo-coffee-machines  
 **npm package:** https://www.npmjs.com/package/homebridge-sanremo-cube-coffeemachine  
 
@@ -56,7 +56,7 @@ The plugin has also been tested against real Sanremo Cube hardware in a Homebrid
 
 - README clearly documents installation, configuration, and limitations
 - Security posture is described accurately and reflects the current dependency state
-- Changelog reflects the latest stable release (1.4.5)
+- Changelog reflects the latest stable release (1.4.6)
 
 ---
 

@@ -212,7 +212,7 @@ Using a child bridge isolates the plugin and improves stability. Use the `_bridg
 
 ## Security Notes
 
-As of v1.4.5, the plugin has no direct vulnerable dependencies. HTTP communication is restricted to the user-configured Sanremo Cube on the local network. No external telemetry or cloud services are used.
+As of v1.4.6, the plugin has no direct vulnerable dependencies. HTTP communication is restricted to the user-configured Sanremo Cube on the local network. No external telemetry or cloud services are used.
 
 A previously listed direct dependency on `hap-js` was erroneously included in `package.json` and has been removed. The plugin does not import, reference, or rely on `hap-js` or `hap-nodejs`. After removal, a clean install (`rm -rf node_modules package-lock.json && npm install`) reports zero vulnerabilities for the plugin dependency tree.
 
@@ -259,7 +259,8 @@ Full release notes and detailed changelog are available in CHANGELOG.md.
 
 Recent versions:
 
-- 1.4.5: Current stable version - JSON Schema fixes and defensive polling improvements
+- 1.4.6: Current stable version - Removed erroneous hap-js dependency, updated documentation
+- 1.4.5: JSON Schema fixes and defensive polling improvements
 - 1.4.2: Documentation and metadata improvements for Homebridge v2 readiness
 - 1.4.1: Metadata and changelog packaging improvements for Homebridge UI integration
 - 1.4.0: Debug logging option, improved installation documentation, safer UUID generation defaults
