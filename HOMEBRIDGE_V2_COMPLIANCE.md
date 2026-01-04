@@ -1,104 +1,172 @@
-# Homebridge v2 Compliance Report  
-(for `homebridge-sanremo-cube-coffeemachine` v1.4.5)
-
-This document outlines compatibility of the `homebridge-sanremo-cube-coffeemachine` plugin with  
-Homebridge v1.6+, Homebridge v2.0, and Node.js v18.20.4 to <25.
-
----
-
-## 1. Overview
-
-Version 1.4.5 is the current stable release.  
-It is fully compatible with Homebridge v1.6 and Homebridge v2.0.  
-The plugin uses only supported APIs, compiles cleanly, and behaves reliably in real-world testing.
+# Homebridge v2 Compliance Statement  
+**Plugin:** homebridge-sanremo-cube-coffeemachine  
+**Current Version:** 1.4.5  
+**Author:** Franc Dierer  
+**Repository:** https://github.com/fdierer/homebridge-sanremo-coffee-machines  
 
 ---
 
-## 2. Compatibility Summary
+## Summary
 
-### Node.js and Homebridge Versions
-- Node.js: **>=18.20.4 <25**  
-- Homebridge: **^1.6.0 || ^2.0.0-beta.0**  
-- Supports and is validated under child bridge mode.
+This plugin is fully compatible with Homebridge v2 and has no known security vulnerabilities as of v1.4.5.
 
-### API Usage
-- Uses modern Homebridge platform APIs  
-- No deprecated HAP-NodeJS imports  
-- No legacy camera services or removed API calls  
-- Accessories are constructed only via `this.platform.Service` and `this.platform.Characteristic`
+**Key Points:**
+- Homebridge v2 compatible (also supports Homebridge v1.6+)
+- No vulnerable dependencies (erroneous hap-js dependency removed)
+- Local-only network access (no cloud services or external APIs)
+- Clean dependency tree with zero npm audit findings
+- Actively maintained and tested on real hardware
 
-### Build and Runtime
-- TypeScript compiles cleanly  
-- Runtime tested on Synology NAS Docker environment  
-- Behaviour confirmed on a real Sanremo Cube machine  
-- No unhandled errors or unsupported API warnings reported
+**Dependency Status:**
+- No direct or transitive vulnerable dependencies
+- Erroneous hap-js dependency removed from package.json
+- Plugin does not import, reference, or rely on hap-js or hap-nodejs
+- npm audit reports zero vulnerabilities
 
----
+**Security:**
+- All network communication restricted to user-configured local IP address
+- No cloud services, external APIs, or telemetry endpoints
+- No authentication material or credentials transmitted externally
+- Plugin does not expand the Homebridge security boundary
 
-## 3. Configuration Schema
-
-The included `config.schema.json`:
-- Correctly defines `pluginAlias` and `pluginType`  
-- Provides validation for platform-level options  
-- Uses JSON Schema `required` arrays (correct for Homebridge UI-X)  
-- Ensures each machine entry includes required fields:
-  - `name`
-  - `type`
-  - `ip`
+For complete details, see the sections below.
 
 ---
 
-## 4. Security Assessment
+## 1. Purpose of This Document
 
-### Direct Dependencies
-The plugin has **no direct dependencies with known vulnerabilities**.  
-Version 1.4.5 removed all deprecated HTTP libraries such as `node-fetch`.
+This document provides a formal compliance statement for the Homebridge plugin **homebridge-sanremo-cube-coffeemachine**, confirming its compatibility with Homebridge v2 and outlining its runtime behaviour, dependency posture, configuration validation, and security characteristics.
 
-### Transitive Vulnerabilities
-`npm audit` may report two critical vulnerabilities originating from **`hap-js`**, specifically through:
-- `request`
-- `form-data`
-
-These packages are not directly used by the plugin.  
-They are part of the underlying HAP client implementation.
-
-### Risk Evaluation
-- All communication is restricted to the user’s Sanremo Cube via a local network IP  
-- No external endpoints or user-supplied URLs  
-- The vulnerable code paths are not exposed in normal operation  
-- Not considered a meaningful attack surface in this context
-
-A future minor release may evaluate replacing `hap-js` if advisable, but this is not required for Homebridge v2 compatibility.
+It is intended for:
+- Homebridge maintainers reviewing plugin verification requests
+- Technical reviewers assessing Homebridge v2 readiness
+- Users seeking a clear statement of compatibility and known constraints
 
 ---
 
-## 5. Real-World Verification
+## 2. Homebridge v2 Compatibility Summary
 
-Validated operations:
-- Power state control  
-- Temperature reading and setpoint changes  
-- Automatic polling and accessory state updates  
-- Correct behaviour under intermittent device availability  
-- No repeated error spam or unexpected resets
+The plugin is compatible with both Homebridge v1.6+ and Homebridge v2.x.
 
-Environment tested:
-- Homebridge Docker on Synology NAS  
-- Sanremo Cube hardware (real device)
+Compatibility is achieved through:
+- Use of the official Homebridge platform APIs
+- Strict adherence to JSON schema validation
+- Avoidance of deprecated Homebridge APIs
+- Runtime validation against real Sanremo Cube hardware
+
+The plugin does not rely on undocumented or internal Homebridge APIs.
 
 ---
 
-## 6. Conclusion
+## 3. Runtime Architecture Overview
 
-Version 1.4.5 meets all Homebridge v2 requirements:
-- Modern API usage  
-- Correct engine constraints  
-- Valid configuration schema  
-- Stable runtime behaviour  
-- Clean build process  
+- The plugin operates entirely within the Homebridge runtime.
+- All device communication occurs over HTTP to a user-configured Sanremo Cube on the local network.
+- No cloud services, external APIs, or telemetry endpoints are used.
+- The plugin performs periodic polling using configurable intervals and defensive error handling.
 
-The only outstanding audit items originate from transitive dependencies in `hap-js`.
+There is no background execution outside the Homebridge process.
 
-**Compliance Status:** Fully compatible with Homebridge v2.0.
+---
 
-**Last Updated:** November 29, 2025  
-**Plugin Version:** 1.4.5
+## 4. Configuration Schema and Validation
+
+The plugin includes a strict JSON schema (`config.schema.json`) that is compatible with Homebridge v2.
+
+Key characteristics:
+- All required fields are explicitly declared
+- Optional fields include defaults and validation constraints
+- Invalid configurations are rejected by Homebridge prior to runtime
+- Schema has been validated against Homebridge Config UI X
+
+This ensures predictable behaviour and prevents runtime misconfiguration.
+
+---
+
+## 5. Dependency and Security Assessment
+
+### 5.1 Dependency Posture
+
+As of version **1.4.5**, the plugin has **no direct or transitive vulnerable dependencies**.
+
+Key points:
+- The plugin declares **only required runtime dependencies**
+- `homebridge` is declared as a peer dependency
+- A previously listed direct dependency on `hap-js` was identified as erroneous and has been **removed**
+- The plugin does not import, reference, or rely on `hap-js` or `hap-nodejs`
+
+A clean install using `npm ci` followed by `npm audit` reports **zero vulnerabilities**.
+
+---
+
+### 5.2 Correction of Prior Security Assessment
+
+Earlier versions of this document referenced security advisories associated with `hap-js`.  
+This assessment was based on the presence of `hap-js` in `package.json`.
+
+That dependency was **not required** by the plugin and has now been removed.
+
+As a result:
+- The plugin has **no association with `hap-js`**
+- There are **no inherited or transitive vulnerabilities**
+- Previous references to `hap-js` security advisories are **no longer applicable and have been corrected**
+
+This correction does not affect plugin functionality or runtime behaviour.
+
+---
+
+### 5.3 Network Exposure
+
+- All network communication is restricted to a user-specified local IP address
+- No inbound listeners are created
+- No remote connectivity is initiated
+- No authentication material or credentials are transmitted externally
+
+The plugin does not expand the Homebridge security boundary.
+
+---
+
+## 6. Testing and Validation
+
+The plugin has been validated through:
+- Continuous real-world use with Sanremo Cube hardware
+- Restart, disconnect, and recovery testing
+- Schema validation within Homebridge Config UI X
+- Clean dependency installation and audit verification
+
+The plugin has been stable in daily operation and exhibits predictable failure handling under network interruption scenarios.
+
+---
+
+## 7. Version Alignment
+
+All documentation, metadata, and runtime behaviour are aligned to **v1.4.5**, which is the version submitted for Homebridge v2 verification.
+
+No behavioural changes were introduced as part of the dependency correction.
+
+---
+
+## 8. Revision History
+
+### v1.4.5 – January 2026 (Documentation & Dependency Correction)
+- Removed erroneous direct dependency on `hap-js` from `package.json`
+- Corrected prior security assessment that incorrectly attributed vulnerabilities to `hap-js`
+- Confirmed clean dependency tree with zero `npm audit` findings
+- No changes to runtime behaviour, configuration schema, or Homebridge v2 compatibility
+
+---
+
+## 9. Conclusion
+
+The plugin **homebridge-sanremo-cube-coffeemachine** is fully compatible with Homebridge v2.
+
+It:
+- Uses supported APIs
+- Enforces strict configuration validation
+- Operates entirely on the local network
+- Declares only required dependencies
+- Has no known security vulnerabilities as of v1.4.5
+
+This document supersedes earlier compliance statements and reflects the current, corrected dependency posture.
+
+---

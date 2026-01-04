@@ -136,9 +136,6 @@
   "dependencies": {
   
     
-  "hap-js": "^1.3.3",
-  
-    
   "node-fetch": "^2.7.0"
   
   },
