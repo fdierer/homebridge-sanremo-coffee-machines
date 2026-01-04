@@ -33,3 +33,11 @@ coverage/
 .env
 .env.local
 
+# Duplicate/old documentation files (use canonical versions)
+README_OLD.md
+HOMEBRIDGE_V2_COMPLIANCE_UPDATED.md
+V2_COMPLIANCE_SUMMARY_CANONICAL.md
+V2_COMPLIANCE_SUMMARY_UPDATED.md
+VERIFICATION_REQUEST_UPDATED.md
+README_DOWNLOAD.md
+

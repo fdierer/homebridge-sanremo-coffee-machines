@@ -1,60 +1,75 @@
-# Homebridge Plugin Verification Request Draft
+# Homebridge Plugin Verification Request
 
-**Subject**: Verification Request for `homebridge-sanremo-cube-coffeemachine`
-
----
-
-## Introduction
-
-Hello Homebridge team,
-
-I'm requesting verification for my plugin `homebridge-sanremo-cube-coffeemachine` (npm: `homebridge-sanremo-cube-coffeemachine`). This is an enhanced and actively maintained fork of the original `homebridge-sanremo-cube` plugin by Nareg Sinenian. I've rebuilt it to be compatible with newer Node.js and Homebridge versions, added new features, and improved documentation while maintaining backward compatibility.
-
-**Repository**: https://github.com/fdierer/homebridge-sanremo-coffee-machines  
-**npm Package**: https://www.npmjs.com/package/homebridge-sanremo-cube-coffeemachine  
-**Current Version**: 1.4.1
+**Plugin name:** `homebridge-sanremo-cube-coffeemachine`  
+**Current version:** 1.4.5  
+**Repository:** https://github.com/fdierer/homebridge-sanremo-coffee-machines  
+**npm package:** https://www.npmjs.com/package/homebridge-sanremo-cube-coffeemachine  
 
 ---
 
-## Why This Plugin is Suitable for Verification
+## Verification Request
 
-- **Modern Homebridge APIs**: Uses current Homebridge APIs and fully supports Homebridge v2.0. No deprecated APIs are used (no `AccessoryLoader`, no legacy camera/streaming APIs, etc.).
+I am requesting Homebridge verification for the plugin **homebridge-sanremo-cube-coffeemachine**, which provides local-only HomeKit integration for Sanremo Cube coffee machines.
 
-- **Explicit Node.js Engine Range**: Package.json specifies `engines.node: ">=18.20.4 <25"` with active testing on Node.js v22.x. This ensures compatibility with Homebridge v2.0 requirements while maintaining support for Homebridge v1.6+.
-
-- **Local-Only Communication**: All communication is local to the user's network. The plugin communicates directly with the Sanremo Cube coffee machine via HTTP on the local LAN. No external telemetry, no cloud services, no data collection.
-
-- **Clear Documentation**: Comprehensive README, config schema with user-friendly descriptions, CHANGELOG following "Keep a Changelog" format, and plugin homepage suitable for Homebridge UI.
-
-- **Child Bridge Support**: Fully tested and working with Homebridge child bridge architecture for improved stability and isolation.
-
-- **Privacy-Conscious**: No sensitive data logging. Debug logging is opt-in only (default: false). Only logs plugin initialization, machine discovery, and network communication status (success/failure).
+This plugin has been actively maintained and updated to meet Homebridge v2 requirements, with a focus on schema correctness, runtime stability, and dependency hygiene.
 
 ---
 
-## Testing and Stability
+## Homebridge v2 Compatibility
 
-The plugin has been tested in a production environment:
-
-- **Real Hardware**: Tested with an actual Sanremo Cube coffee machine on a local network
-- **Environment**: Homebridge running in Docker on Synology NAS with Node.js v22.x
-- **Architecture**: Running in child bridge mode for isolation
-- **Polling**: Automatic status polling tested at intervals from 5 seconds to 30 seconds
-- **Error Handling**: Network communication failures are handled gracefully with retry logic and proper error reporting to Homebridge logs
-
-The plugin implements automatic status polling with configurable intervals, proper error handling for network communication, and defensive UUID generation to prevent crashes from malformed user configurations.
+- Compatible with Homebridge `^1.6.0 || ^2.0.0-beta.0`
+- Uses a valid `config.schema.json` with correct `required` arrays
+- Supports child bridge mode
+- Handles malformed or partial device responses defensively to prevent crashes
+- Fully local operation (no cloud services or external APIs)
 
 ---
 
-## Next Steps
+## Dependencies and Security
 
-I'm happy to provide any additional information, answer questions, or make adjustments if needed. The plugin is ready for verification and has been published to npm as `homebridge-sanremo-cube-coffeemachine@1.4.1`.
+- The plugin **does not depend on `hap-js` or `hap-nodejs`**
+- `hap-js` has been **fully removed** from `package.json`
+- After a clean reinstall (`rm -rf node_modules package-lock.json && npm install`):
+  - `npm ls hap-js` returns empty
+  - `npm audit` reports **0 vulnerabilities**
+- The plugin communicates only with the user-configured Sanremo Cube device on the local network via HTTP
+- No telemetry, analytics, or external network calls are performed
 
-Thank you for your consideration.
+This addresses the previously flagged dependency concern directly and conclusively.
 
 ---
 
-**Maintainer**: Franc Dierer  
-**GitHub**: https://github.com/fdierer  
-**Original Author Attribution**: Nareg Sinenian (https://github.com/nsinenian)
+## Testing and Validation
 
+The following checks pass cleanly in the repository:
+
+- `npm ci`
+- `npm run lint`
+- `npm run build`
+- `npm audit`
+
+The plugin has also been tested against real Sanremo Cube hardware in a Homebridge v2 environment.
+
+---
+
+## Documentation
+
+- README clearly documents installation, configuration, and limitations
+- Security posture is described accurately and reflects the current dependency state
+- Changelog reflects the latest stable release (1.4.5)
+
+---
+
+## Additional Notes
+
+This repository is a maintained fork of the original plugin, with explicit acknowledgement of the original author and a focus on long-term stability and compatibility.
+
+I am happy to:
+- Provide additional audit output or logs if required
+- Make any documentation or metadata adjustments requested
+- Respond to follow-up questions during the verification process
+
+Thank you for taking the time to review this request.
+
+— Franc Dierer  
+https://github.com/fdierer

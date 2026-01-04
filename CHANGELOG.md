@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected JSON Schema 'required' usage in config.schema.json to satisfy Homebridge checks.
 - Added defensive checks in polling code to avoid runtime errors when the machine returns unexpected responses (behaviour for valid responses remains unchanged from 1.4.2).
 
+### Changed (Post-release - January 2026)
+- Removed erroneous direct dependency on `hap-js` from `package.json`. The plugin does not import, reference, or rely on `hap-js` or `hap-nodejs`. This dependency was not required and has been removed. After removal, a clean install reports zero vulnerabilities for the plugin dependency tree. No runtime or behavioural changes.
+
 ## [1.4.2] - 2025-11-28
 ### Changed
 - Documentation and metadata improvements for Homebridge v2 readiness and plugin homepage.
