@@ -41,3 +41,9 @@ V2_COMPLIANCE_SUMMARY_UPDATED.md
 VERIFICATION_REQUEST_UPDATED.md
 README_DOWNLOAD.md
 
+# Internal project documentation (local reference only)
+INTERNAL_PROJECT_SUMMARY.md
+
+# Cursor workspace file (local only)
+*.code-workspace
+

@@ -1,16 +1,18 @@
 # Homebridge v2 Compliance Statement  
 **Plugin:** homebridge-sanremo-cube-coffeemachine  
-**Current Version:** 1.4.6  
+**Current Version:** 1.4.7  
 **Author:** Franc Dierer  
 **Repository:** https://github.com/fdierer/homebridge-sanremo-coffee-machines  
+**Verification Status:** ✅ Officially verified by Homebridge (Issue #897, February 2026)  
 
 ---
 
 ## Summary
 
-This plugin is fully compatible with Homebridge v2 and has no known security vulnerabilities as of v1.4.6.
+This plugin is fully compatible with Homebridge v2, has been officially verified by Homebridge, and has no known security vulnerabilities as of v1.4.7.
 
 **Key Points:**
+- ✅ Officially verified by Homebridge (meets all verification requirements)
 - Homebridge v2 compatible (also supports Homebridge v1.6+)
 - No vulnerable dependencies (erroneous hap-js dependency removed)
 - Local-only network access (no cloud services or external APIs)
@@ -140,13 +142,19 @@ The plugin has been stable in daily operation and exhibits predictable failure h
 
 ## 7. Version Alignment
 
-All documentation, metadata, and runtime behaviour are aligned to **v1.4.6**. The plugin was initially submitted for Homebridge v2 verification at v1.4.5.
+All documentation, metadata, and runtime behaviour are aligned to **v1.4.7**. The plugin was initially submitted for Homebridge v2 verification at v1.4.5 and officially verified in February 2026 (Issue #897).
 
 No behavioural changes were introduced as part of the dependency correction.
 
 ---
 
 ## 8. Revision History
+
+### v1.4.7 – February 2026 (Verification Release)
+- Plugin officially verified by Homebridge team
+- Added verification badge to README and documentation
+- Added funding field to package.json for donation links support
+- Updated all documentation to reflect verified status
 
 ### v1.4.6 – January 2026 (Dependency Correction Release)
 - Removed erroneous direct dependency on `hap-js` from `package.json` and published to NPM
@@ -170,7 +178,8 @@ It:
 - Enforces strict configuration validation
 - Operates entirely on the local network
 - Declares only required dependencies
-- Has no known security vulnerabilities as of v1.4.6
+- Has no known security vulnerabilities as of v1.4.7
+- Is officially verified by Homebridge (Issue #897)
 
 This document supersedes earlier compliance statements and reflects the current, corrected dependency posture.
 

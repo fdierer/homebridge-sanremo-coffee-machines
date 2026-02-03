@@ -1,5 +1,6 @@
 # homebridge-sanremo-cube-coffeemachine
 
+[![verified-by-homebridge](https://img.shields.io/badge/homebridge-verified-blueviolet?color=%23491F59&style=flat)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 [![npm version](https://img.shields.io/npm/v/homebridge-sanremo-cube-coffeemachine.svg)](https://www.npmjs.com/package/homebridge-sanremo-cube-coffeemachine)
 [![npm downloads](https://img.shields.io/npm/dm/homebridge-sanremo-cube-coffeemachine.svg)](https://www.npmjs.com/package/homebridge-sanremo-cube-coffeemachine)
 
@@ -8,6 +9,8 @@ Homebridge plugin for Sanremo Coffee Machines. Control your Sanremo Cube coffee 
 ## Overview
 
 This plugin provides HomeKit integration for Sanremo Cube coffee machines, allowing you to control and monitor your machine through the Apple Home app, Siri, and HomeKit automations. The plugin communicates with your coffee machine via its built-in HTTP interface at `/ajax/post`.
+
+**This plugin is officially verified by Homebridge** and meets all Homebridge v2 compliance requirements. See [verification details](https://github.com/homebridge/plugins/issues/897).
 
 Note: This project is an enhanced and actively maintained fork of the original `homebridge-sanremo-cube` plugin by Nareg Sinenian. All original credit belongs to the upstream author. This fork adds new features, documentation, and Homebridge v2 compatibility.
 
@@ -19,7 +22,7 @@ Note: This project is an enhanced and actively maintained fork of the original `
 - Temperature control: Monitor and adjust boiler temperature (115-130°C range)
 - Filter maintenance: Track filter life and get replacement reminders
 - HomeKit native: Works with Apple Home app, Siri, and HomeKit automations
-- Homebridge v2 ready: Compatible with Homebridge v2 and current Homebridge releases
+- Homebridge Verified: Officially verified plugin compatible with Homebridge v2
 
 ## Prerequisites
 
@@ -259,7 +262,8 @@ Full release notes and detailed changelog are available in CHANGELOG.md.
 
 Recent versions:
 
-- 1.4.6: Current stable version - Removed erroneous hap-js dependency, updated documentation
+- 1.4.7: Current stable version - Officially verified by Homebridge, added donation links support
+- 1.4.6: Removed erroneous hap-js dependency, updated documentation
 - 1.4.5: JSON Schema fixes and defensive polling improvements
 - 1.4.2: Documentation and metadata improvements for Homebridge v2 readiness
 - 1.4.1: Metadata and changelog packaging improvements for Homebridge UI integration

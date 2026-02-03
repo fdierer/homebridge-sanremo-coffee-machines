@@ -8,6 +8,7 @@ This plugin enables HomeKit integration for Sanremo Cube coffee machines, allowi
 
 ## Features
 
+- **Homebridge Verified**: Officially verified plugin that meets all Homebridge quality standards
 - **Power Control**: Turn your coffee machine on/off (standby mode) from HomeKit
 - **Temperature Monitoring**: Monitor boiler temperature in real-time (115-130°C range)
 - **Temperature Control**: Adjust target brewing temperature via HomeKit
