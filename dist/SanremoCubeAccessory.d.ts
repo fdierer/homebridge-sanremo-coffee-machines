@@ -16,6 +16,17 @@ export declare class SanremoCubeAccessory {
     private readonly enablePowerSwitch;
     private readonly filterLifeDays;
     private readonly debugLogging;
+    /** Avoid overlapping polls when a request is slow or hung */
+    private isPollInProgress;
+    /** Bound fetch wait so hung TCP reads don't pile up intervals */
+    private readonly requestTimeoutMs;
+    /** Quiet transient network noise: warn only after sustained poll failures */
+    private consecutiveFailedPolls;
+    private connectivityOutageAnnounced;
+    private lastConnectivityWarnTimestamp;
+    private readonly connectivityFailureWarnThreshold;
+    private readonly connectivityWarnIntervalMs;
+    private static readonly transientNetworkCodes;
     /** REST Commands */
     private readonly cmdGetDeviceInfo;
     private readonly cmdGetReadOnlyParameters;
@@ -72,8 +83,8 @@ export declare class SanremoCubeAccessory {
      * Stop polling (cleanup)
      */
     stopPolling(): void;
-    getReadWriteParameters(): Promise<boolean>;
-    getReadOnlyParameters(): Promise<boolean>;
+    getReadWriteParameters(): any;
+    getReadOnlyParameters(): any;
     /*** Heater-cooler implementation ***/
     handleActiveGet(): Promise<boolean>;
     handleActiveSet(value: CharacteristicValue): Promise<void>;
@@ -108,6 +119,11 @@ export declare class SanremoCubeAccessory {
     /*** Power Switch implementation ***/
     handlePowerSwitchGet(): Promise<boolean>;
     handlePowerSwitchSet(value: CharacteristicValue): Promise<void>;
+    private postToMachine;
+    private isTransientNetworkError;
+    private logRequestError;
+    private noteConnectivityFailure;
+    private noteConnectivitySuccess;
     private debugLog;
 }
 //# sourceMappingURL=SanremoCubeAccessory.d.ts.map

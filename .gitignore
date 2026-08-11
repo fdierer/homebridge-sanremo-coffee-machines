@@ -4,6 +4,7 @@ package-lock.json
 
 # Local working notes
 DevNotes.rtf
+LOCAL_NAS_INSTALL.md
 
 # Working with AI
 AI_CONTEXT.md
@@ -43,6 +44,7 @@ README_DOWNLOAD.md
 
 # Internal project documentation (local reference only)
 INTERNAL_PROJECT_SUMMARY.md
+WORKSPACE_README.md
 
 # Cursor workspace file (local only)
 *.code-workspace

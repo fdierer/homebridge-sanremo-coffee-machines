@@ -262,7 +262,8 @@ Full release notes and detailed changelog are available in CHANGELOG.md.
 
 Recent versions:
 
-- 1.4.7: Current stable version - Officially verified by Homebridge, added donation links support
+- 1.4.8: Current stable version - Quieter connectivity logging, poll overlap guard, and request timeouts
+- 1.4.7: Officially verified by Homebridge, added donation links support
 - 1.4.6: Removed erroneous hap-js dependency, updated documentation
 - 1.4.5: JSON Schema fixes and defensive polling improvements
 - 1.4.2: Documentation and metadata improvements for Homebridge v2 readiness

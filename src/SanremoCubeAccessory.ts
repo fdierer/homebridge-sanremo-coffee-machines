@@ -18,6 +18,29 @@ export class SanremoCubeAccessory {
     private readonly enablePowerSwitch: boolean;
     private readonly filterLifeDays: number;
     private readonly debugLogging: boolean;
+
+    /** Avoid overlapping polls when a request is slow or hung */
+    private isPollInProgress = false;
+
+    /** Bound fetch wait so hung TCP reads don't pile up intervals */
+    private readonly requestTimeoutMs = 10000;
+
+    /** Quiet transient network noise: warn only after sustained poll failures */
+    private consecutiveFailedPolls = 0;
+    private connectivityOutageAnnounced = false;
+    private lastConnectivityWarnTimestamp = 0;
+    private readonly connectivityFailureWarnThreshold = 3;
+    private readonly connectivityWarnIntervalMs = 15 * 60 * 1000;
+
+    private static readonly transientNetworkCodes = new Set([
+        'ETIMEDOUT',
+        'ECONNRESET',
+        'ECONNREFUSED',
+        'EHOSTUNREACH',
+        'ENETUNREACH',
+        'EPIPE',
+        'EAI_AGAIN',
+    ]);
     
     /** REST Commands */
     private readonly cmdGetDeviceInfo = 'key=150';
@@ -204,10 +227,22 @@ export class SanremoCubeAccessory {
      * Poll the coffee machine and update all characteristics
      */
     private async pollStatus() {
+        if (this.isPollInProgress) {
+            this.debugLog('Skipping poll cycle; previous poll still in progress');
+            return;
+        }
+
+        this.isPollInProgress = true;
         try {
             this.debugLog('Beginning poll cycle');
-            await this.getReadOnlyParameters();
-            await this.getReadWriteParameters();
+            const readOnlyOk = await this.getReadOnlyParameters();
+            const readWriteOk = await this.getReadWriteParameters();
+            // Count per poll cycle: a single timed-out request with a sibling success is a blip
+            if (readOnlyOk || readWriteOk) {
+                this.noteConnectivitySuccess();
+            } else {
+                this.noteConnectivityFailure();
+            }
             
             // Update all characteristics
             const isActive = (this.roRegStatus & this.statusMaskStandby) == 0;
@@ -246,7 +281,9 @@ export class SanremoCubeAccessory {
             this.lastPollTimestamp = Date.now();
         } catch (error) {
             this.debugLog(`Poll failed: ${error}`);
-            this.platform.log.error(`Error polling ${this.accessory.displayName}:`, error);
+            this.logRequestError('pollStatus', error);
+        } finally {
+            this.isPollInProgress = false;
         }
     }
     
@@ -263,14 +300,7 @@ export class SanremoCubeAccessory {
     
     getReadWriteParameters() {
         this.debugLog('Sending getReadWriteParameters request');
-        return fetch(this.postUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Connection': 'close',
-            },
-            body: this.cmdGetReadWriteParameters,
-        })
+        return this.postToMachine(this.cmdGetReadWriteParameters)
         .then(r => r.json())
         .then(r => {
             // Defensive check: validate response structure before indexing
@@ -291,21 +321,15 @@ export class SanremoCubeAccessory {
             this.debugLog(`Received read/write parameters: target temp=${this.rwRegTemp}`);
             return true;
         }).catch(error => {
-            this.platform.log.error(`[${this.accessory.displayName}] Error in getReadWriteParameters:`, error);
+            this.logRequestError('getReadWriteParameters', error);
             return false;
         });
     }
     
     getReadOnlyParameters() {
         this.debugLog('Sending getReadOnlyParameters request');
-        return fetch(this.postUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Connection': 'close',
-            },
-            body: this.cmdGetReadOnlyParameters,
-        }).then((response) => {
+        return this.postToMachine(this.cmdGetReadOnlyParameters)
+        .then((response) => {
           if (response.ok) {
             return response.json();
           }
@@ -353,7 +377,7 @@ export class SanremoCubeAccessory {
             return true;
         })
         .catch((error) => {
-            this.platform.log.error(`[${this.accessory.displayName}] Error in getReadOnlyParameters:`, error);
+            this.logRequestError('getReadOnlyParameters', error);
             return false;
         });
     }
@@ -369,13 +393,8 @@ export class SanremoCubeAccessory {
     async handleActiveSet(value: CharacteristicValue) {
         const content = value? this.cmdActive : this.cmdStandby;
         this.debugLog(`Sending power ${value ? 'ON' : 'STANDBY'} command`);
-        fetch(this.postUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Connection': 'close',
-            },
-            body: content,
+        this.postToMachine(content).catch(error => {
+            this.logRequestError('handleActiveSet', error);
         });
     }
     
@@ -398,13 +417,8 @@ export class SanremoCubeAccessory {
 
         const content = this.cmdSetTemperature + String(targetTemperature);
 
-        fetch(this.postUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Connection': 'close',
-            },
-            body: content,
+        this.postToMachine(content).catch(error => {
+            this.logRequestError('handleTargetTemperatureSet', error);
         });
     }
     
@@ -454,13 +468,8 @@ export class SanremoCubeAccessory {
     
     async ResetFilterIndicationSet() {
         this.debugLog('Sending reset filter indication command');
-        fetch(this.postUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Connection': 'close',
-            },
-            body: this.cmdResetFilterExpiration,
+        this.postToMachine(this.cmdResetFilterExpiration).catch(error => {
+            this.logRequestError('ResetFilterIndicationSet', error);
         });
         
         // Reset filter replacement date when filter is replaced
@@ -539,14 +548,85 @@ export class SanremoCubeAccessory {
         this.platform.log.info(`${isOn ? 'Powering ON' : 'Powering OFF'} ${this.accessory.displayName} via Power Switch`);
         this.debugLog(`Power switch set to ${isOn ? 'ON' : 'OFF'}`);
         
-        fetch(this.postUrl, {
+        this.postToMachine(content).catch(error => {
+            this.logRequestError('handlePowerSwitchSet', error);
+        });
+    }
+
+    private postToMachine(body: string) {
+        return fetch(this.postUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Connection': 'close',
             },
-            body: content,
+            body,
+            timeout: this.requestTimeoutMs,
         });
+    }
+
+    private isTransientNetworkError(error: unknown): boolean {
+        const err = error as { code?: string; type?: string; message?: string } | undefined;
+        const code = err?.code;
+        if (code && SanremoCubeAccessory.transientNetworkCodes.has(code)) {
+            return true;
+        }
+        // node-fetch v2 timeout rejects with type "request-timeout"
+        if (err?.type === 'request-timeout') {
+            return true;
+        }
+        const message = String(err?.message || error || '');
+        return message.includes('socket hang up') || message.includes('network timeout');
+    }
+
+    private logRequestError(operation: string, error: unknown): void {
+        if (!this.isTransientNetworkError(error)) {
+            this.platform.log.error(`[${this.accessory.displayName}] Error in ${operation}:`, error);
+            return;
+        }
+
+        // Individual request blips stay at debug; pollStatus decides when an outage is worth warning
+        const err = error as { code?: string; type?: string };
+        const code = err?.code || err?.type || 'NETWORK';
+        this.debugLog(`${operation} failed: ${code}`);
+    }
+
+    private noteConnectivityFailure(): void {
+        this.consecutiveFailedPolls += 1;
+        this.debugLog(`Poll cycle failed (${this.consecutiveFailedPolls} consecutive)`);
+
+        const now = Date.now();
+        const crossedThreshold = this.consecutiveFailedPolls === this.connectivityFailureWarnThreshold;
+        const reWarnWhileDown =
+            this.connectivityOutageAnnounced &&
+            (now - this.lastConnectivityWarnTimestamp) >= this.connectivityWarnIntervalMs;
+
+        if (crossedThreshold || reWarnWhileDown) {
+            this.connectivityOutageAnnounced = true;
+            this.lastConnectivityWarnTimestamp = now;
+            this.platform.log.warn(
+                `[${this.accessory.displayName}] Machine unreachable ` +
+                `(${this.consecutiveFailedPolls} consecutive failed polls). ` +
+                'Further connectivity errors will be suppressed until restored.',
+            );
+        }
+    }
+
+    private noteConnectivitySuccess(): void {
+        if (this.connectivityOutageAnnounced) {
+            this.platform.log.info(
+                `[${this.accessory.displayName}] Connection to machine restored ` +
+                `(after ${this.consecutiveFailedPolls} failed poll(s)).`,
+            );
+        } else if (this.consecutiveFailedPolls > 0) {
+            this.debugLog(
+                `Connectivity recovered after ${this.consecutiveFailedPolls} brief failed poll(s)`,
+            );
+        }
+
+        this.consecutiveFailedPolls = 0;
+        this.connectivityOutageAnnounced = false;
+        this.lastConnectivityWarnTimestamp = 0;
     }
 
     private debugLog(message: string) {

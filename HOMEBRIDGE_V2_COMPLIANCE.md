@@ -1,6 +1,6 @@
 # Homebridge v2 Compliance Statement  
 **Plugin:** homebridge-sanremo-cube-coffeemachine  
-**Current Version:** 1.4.7  
+**Current Version:** 1.4.8  
 **Author:** Franc Dierer  
 **Repository:** https://github.com/fdierer/homebridge-sanremo-coffee-machines  
 **Verification Status:** ✅ Officially verified by Homebridge (Issue #897, February 2026)  
@@ -9,7 +9,7 @@
 
 ## Summary
 
-This plugin is fully compatible with Homebridge v2, has been officially verified by Homebridge, and has no known security vulnerabilities as of v1.4.7.
+This plugin is fully compatible with Homebridge v2, has been officially verified by Homebridge, and has no known security vulnerabilities as of v1.4.8.
 
 **Key Points:**
 - ✅ Officially verified by Homebridge (meets all verification requirements)
@@ -142,7 +142,12 @@ The plugin has been stable in daily operation and exhibits predictable failure h
 
 ## 7. Version Alignment
 
-All documentation, metadata, and runtime behaviour are aligned to **v1.4.7**. The plugin was initially submitted for Homebridge v2 verification at v1.4.5 and officially verified in February 2026 (Issue #897).
+All documentation, metadata, and runtime behaviour are aligned to **v1.4.8**. The plugin was initially submitted for Homebridge v2 verification at v1.4.5 and officially verified in February 2026 (Issue #897).
+
+### v1.4.8 – August 2026
+- Quieter connectivity logging with poll-cycle outage thresholds
+- Poll overlap guard and HTTP request timeouts for more stable local polling
+- No schema, dependency, or HomeKit API changes
 
 No behavioural changes were introduced as part of the dependency correction.
 
@@ -178,7 +183,7 @@ It:
 - Enforces strict configuration validation
 - Operates entirely on the local network
 - Declares only required dependencies
-- Has no known security vulnerabilities as of v1.4.7
+- Has no known security vulnerabilities as of v1.4.8
 - Is officially verified by Homebridge (Issue #897)
 
 This document supersedes earlier compliance statements and reflects the current, corrected dependency posture.
